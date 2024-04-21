@@ -1,0 +1,15 @@
+GET http://localhost:8080/products HTTP/1.1
+Host: localhost
+
+###
+
+POST http://localhost:8080/product
+Content-Type: application/json
+Cookie: token=KX7w3lN62Oc8ShUPljdVeCHC1kI2ucR9Mijc5YZs4l73u1Yt3fwpSIxMNTZj0WFX9hs4KLhiBDqxpJIiu0qsjlukCMni0f3Xi31Iu9B71YlX5DSlsqjgOF9r8WYfpkG4
+
+{
+  "title": "Test product2",
+  "description": "Test description",
+  "price": 1000,
+  "image": "testImage"
+}
