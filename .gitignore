@@ -120,3 +120,6 @@ dist
 
 # VSCode file history extension
 .history/
+
+# Application specific
+upload/
