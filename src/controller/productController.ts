@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import ProductModel from '../models/productModel';
 import productModel from '../models/productModel';
-import { checkToken } from './userController';
+import fileUpload from '../middleware/fileUpload';
+import { checkTokenMiddleware } from '../middleware/checkToken';
 
 const router = Router();
 
@@ -19,15 +20,8 @@ router.get('/products', async (req, res) => {
 
 router.post(
 	'/product',
-	(req, res, next) => {
-		const token = req.cookies['token'];
-
-		if (undefined === token || !checkToken(token)) {
-			return res.sendStatus(401);
-		}
-
-		next();
-	},
+	fileUpload.single('image'),
+	checkTokenMiddleware,
 	async (req, res) => {
 		if (!req.body) {
 			return res.sendStatus(400);
@@ -36,18 +30,20 @@ router.post(
 		const title = req.body.title;
 		const description = req.body.description;
 		const price = req.body.price;
-		const image = req.body.image;
+		const imageFile = req.file;
 
 		if (
 			title === undefined ||
 			description === undefined ||
 			price === undefined ||
-			image === undefined
+			imageFile === undefined
 		) {
 			return res.sendStatus(400);
 		}
 
 		try {
+			const image = `http://${process.env.HOST}/assets/${imageFile.filename}`;
+
 			await productModel.create({
 				title,
 				description,
