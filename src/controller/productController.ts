@@ -24,6 +24,7 @@ router.post(
 	checkTokenMiddleware,
 	async (req, res) => {
 		if (!req.body) {
+			console.error('No body')
 			return res.sendStatus(400);
 		}
 

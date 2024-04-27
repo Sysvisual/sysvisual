@@ -5,7 +5,7 @@ Host: localhost
 
 POST http://localhost:8080/product
 Content-Type: application/json
-Cookie: token=KX7w3lN62Oc8ShUPljdVeCHC1kI2ucR9Mijc5YZs4l73u1Yt3fwpSIxMNTZj0WFX9hs4KLhiBDqxpJIiu0qsjlukCMni0f3Xi31Iu9B71YlX5DSlsqjgOF9r8WYfpkG4
+Cookie: token=WxMF9iHYGmtKE3wfFW4n1G9XqHxqwmVoZmIPHjpiqu0kPpIs30s50p4SV747LqdHYjqtyN94hO0OBNNBFPoyKar1cliLoaY7oOqX31Y1b0Lro0qHzGnCop0gMb8hD2MO
 
 {
   "title": "Test product2",

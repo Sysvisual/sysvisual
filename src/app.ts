@@ -17,6 +17,10 @@ export default async function (): Promise<express.Express> {
 
 		await mongoose.connect(mongoUrl, {
 			connectTimeoutMS: 5000,
+			auth: {
+				username: process.env.DB_USERNAME,
+				password: process.env.DB_PASSWORD,
+			}
 		});
 
 		createDefaultUsers();
@@ -26,6 +30,9 @@ export default async function (): Promise<express.Express> {
 		console.log('Not successfully connected to the database.');
 		console.log(error);
 	}
+
+	console.log(`Uploaded files will be saved to: ${process.env.FILE_UPLOAD_DEST}`);
+	
 
 	app.use(express.json());
 	app.use(cookieParser());
