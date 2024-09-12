@@ -8,7 +8,7 @@ import app from "./app";
 
   const appServer = http.createServer(await app());
 
-  appServer.listen(SERVER_PORT, SERVER_HOST, () => {
+  appServer.listen(SERVER_PORT, SERVER_HOST === 'localhost' ? undefined : SERVER_HOST, () => {
     console.log(`App server is running on http://${SERVER_HOST}:${SERVER_PORT}`);
   });
 })();

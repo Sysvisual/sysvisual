@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { checkToken as checkToken } from '../controller/userController';
+import { checkToken } from '../controller/userController';
 
 export const checkTokenMiddleware = (
 	req: Request,
