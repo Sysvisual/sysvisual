@@ -1,8 +1,8 @@
-POST http://localhost:8080/lasermatti/login
+POST http://localhost:8080/login
 Host: localhost
 Content-Type: application/json
 
 {
   "username": "lasermatti",
-  "password": "3qaH1AZGdeqn"
+  "password": "34kpfv6qYHMo"
 }

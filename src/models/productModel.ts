@@ -16,8 +16,8 @@ const productModel = new mongoose.Schema<Product>({
     type: Types.String,
     required: true
   },
-  image: {
-    type: Types.String,
+  images: {
+    type: [Types.String],
     required: true
   }
 })

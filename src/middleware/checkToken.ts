@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { checkToken } from '../controller/userController';
+import { verifyJWT } from '../utils/jwt';
 
 export const checkTokenMiddleware = (
 	req: Request,
@@ -8,7 +8,7 @@ export const checkTokenMiddleware = (
 ) => {
 	const token = req.cookies['token'];
 
-	if (undefined === token || !checkToken(token)) {
+	if (undefined === token || !verifyJWT(token)) {
 		return res.sendStatus(401);
 	}
 

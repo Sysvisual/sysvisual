@@ -3,9 +3,10 @@ Host: localhost
 
 ###
 
-POST http://localhost:8080/product
+POST http://localhost:8080/product HTTP/1.1
 Content-Type: application/json
-Cookie: token=WxMF9iHYGmtKE3wfFW4n1G9XqHxqwmVoZmIPHjpiqu0kPpIs30s50p4SV747LqdHYjqtyN94hO0OBNNBFPoyKar1cliLoaY7oOqX31Y1b0Lro0qHzGnCop0gMb8hD2MO
+Cookie: token=FDWmvBk60cGzT1AVchFzaSe0Y2sSbbCsQSFgakeb4K5FxjWKOyIbiMHHWIBMbPfNLuyPOYTCinxTlx6jgf46ewBoJTaY4z3TDfgtcqjci2doexGtdEHJq28XNIccmDGY
+
 
 {
   "title": "Test product2",

@@ -2,18 +2,16 @@ import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import userModel from '../models/userModel';
 import { User } from '../interface/User';
-import { generateAlphanumericStr } from '../utils';
-
-const tokens: Map<string, number> = new Map();
-const tokenLength = 128;
-const maxAge = 1000 * 60 * 60; // 1000 (ms) * 60 (s) * 60 (m)
+import { generateJWT } from '../utils/jwt';
 
 const router = Router();
 
-router.post('/:user/login', async (req, res) => {
+router.post('/login', async (req, res) => {
 	if (!req.body) {
 		return res.sendStatus(400);
 	}
+
+	console.log(req.body)
 
 	const username = req.body.username;
 	const password = req.body.password;
@@ -27,15 +25,14 @@ router.post('/:user/login', async (req, res) => {
 		.select(['-_id', 'username', 'password'])
 		.exec()) as unknown as User;
 
-	if (user === undefined) {
+	if (user === null) {
 		return res.sendStatus(401);
 	}
 
 	if (await bcrypt.compare(password, user.password)) {
-		const token = generateAlphanumericStr(tokenLength);
+		const token = await generateJWT(user);//generateAlphanumericStr(tokenLength);
 
-		tokens.set(token, new Date().getTime() + maxAge);
-		res.cookie('token', token, { maxAge: maxAge });
+		res.cookie('token', token, { maxAge: Math.floor((Date.now() / 1000) + (60 * 60 * 2)), sameSite: "none", secure: process.env.ENVIRONMENT !== 'LOCAL' });
 		res.sendStatus(200);
 	} else {
 		res.sendStatus(401);
@@ -43,18 +40,3 @@ router.post('/:user/login', async (req, res) => {
 });
 
 export default router;
-export function checkToken(token: string): boolean {
-	const expiresAt = tokens.get(token);
-	if (expiresAt === undefined) {
-		return false;
-	}
-	return new Date().getTime() - expiresAt < 0;
-}
-
-export async function clearExpiredTokens() {
-	for (const key of tokens.keys()) {
-		if (new Date().getTime() - (tokens.get(key) ?? 0) > 0) {
-			tokens.delete(key);
-		}
-	}
-}
