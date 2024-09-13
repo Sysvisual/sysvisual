@@ -14,17 +14,19 @@ const generateJWT = async (user: User) => {
 		expiresIn: Math.floor(Date.now() / 1000) + (60 * 60 * 2), // 2 hours
 		issuer: 'sysvisual',
 		audience: user.username,
-		notBefore: Date.now()
 	});
 }
 
-const verifyJWT = async (token: string) => {
+const verifyJWT = async (token: string): Promise<boolean> => {
 	if(!process.env.JWT_SECRET) {
 		throw new Error('Cannot verify JWT: Missing secret in .env!')
 	}
-	jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-
-	})
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		return !!decoded;
+	} catch (_) {
+		return false;
+	}
 }
 
 export {

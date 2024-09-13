@@ -5,12 +5,12 @@ Host: localhost
 
 POST http://localhost:8080/product HTTP/1.1
 Content-Type: application/json
-Cookie: token=FDWmvBk60cGzT1AVchFzaSe0Y2sSbbCsQSFgakeb4K5FxjWKOyIbiMHHWIBMbPfNLuyPOYTCinxTlx6jgf46ewBoJTaY4z3TDfgtcqjci2doexGtdEHJq28XNIccmDGY
+Cookie: token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoibGFzZXJtYXR0aSJ9LCJpYXQiOjE3MjYyNjMyMjYsImV4cCI6MzQ1MjUzMzY1MiwiYXVkIjoibGFzZXJtYXR0aSIsImlzcyI6InN5c3Zpc3VhbCJ9.72arlxT14XtSfD9IjhqkU_PCp4WNbexdldkRZoKsrevL8_k-DzvXBra-X56tHmha7NOUWMrPDgkRoN4TRQ9wuA
 
 
 {
-  "title": "Test product2",
+  "title": "Test product3",
   "description": "Test description",
-  "price": 1000,
+  "price": 1032,
   "image": "testImage"
 }

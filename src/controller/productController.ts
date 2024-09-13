@@ -3,6 +3,7 @@ import ProductModel from '../models/productModel';
 import productModel from '../models/productModel';
 import fileUpload from '../middleware/fileUpload';
 import { checkTokenMiddleware } from '../middleware/checkToken';
+import { mapProductToDTO } from '../utils/objectMapper';
 
 const router = Router();
 
@@ -12,9 +13,7 @@ router.get('/products', async (req, res) => {
 			.select(['_id', 'title', 'description', 'price', 'image'])
 			.exec();
 
-		console.log(result);
-
-		return res.status(200).json(result);
+		return res.status(200).json(result.map((product) => mapProductToDTO(product)));
 	} catch (err) {
 		res.sendStatus(500);
 	}
@@ -22,17 +21,17 @@ router.get('/products', async (req, res) => {
 
 router.get('/product/:product_id', async (req, res) => {
 	try {
-		const result = await ProductModel.find({ _id: req.params.product_id })
-			.select(['-_id', 'title', 'description', 'price', 'image'])
+		const result = await ProductModel.findOne({ _id: req.params.product_id })
+			.select(['_id', 'title', 'description', 'price', 'image'])
 			.exec();
 
-		console.log(result);
+		console.log(req.params, result);
 
 		if (!result) {
 			return res.sendStatus(404);
 		}
 
-		return res.status(200).json(result);
+		return res.status(200).json(mapProductToDTO(result));
 	} catch (err) {
 		res.sendStatus(500);
 	}
