@@ -9,8 +9,8 @@ Cookie: token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJuYW1lIjoib
 
 
 {
-  "title": "Test product3",
+  "title": "Test product4",
   "description": "Test description",
-  "price": 1032,
+  "price": 1,
   "image": "testImage"
 }

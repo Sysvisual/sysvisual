@@ -46,8 +46,9 @@ export default async function (): Promise<express.Express> {
 async function createDefaultUsers(): Promise<void> {
 	const userCount = await UserModel.count().exec();
 
+	const environment = process.env.ENVIRONMENT;
 	if (userCount <= 0) {
-		const password = generateAlphanumericStr(12);
+		const password = environment === 'LOCAL' ? 'admin' : generateAlphanumericStr(12);
 		const username = 'lasermatti';
 
 		const user = new UserModel({

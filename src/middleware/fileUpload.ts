@@ -13,11 +13,17 @@ const storage = multer.diskStorage({
 		if (!fileUploadDest) {
 			return cb(new Error('file upload destination is not set!'), '');
 		}
+		const randomUUID = req.headers['X-RandomUUID'] ?? crypto.randomUUID();
+		const uploadDir = `${fileUploadDest}/${randomUUID}`;
 
-		cb(null, fileUploadDest);
+		req.headers['X-RandomUUID'] = randomUUID;
+		if(!fs.existsSync(uploadDir)) {
+			fs.mkdirSync(uploadDir);
+		}
+		cb(null, uploadDir);
 	},
 	filename(req, file, cb) {
-		const fileName = `${file.originalname}-${new Date().toISOString()}`;
+		const fileName = `${new Date().toISOString()}-${file.originalname}`;
 		cb(null, encodeURI(fileName));
 	},
 });

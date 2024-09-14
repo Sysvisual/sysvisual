@@ -12,10 +12,8 @@ router.get('/is-logged-in', async (req, res) => {
 	}
 
 	if (await verifyJWT(req.cookies.token as string)) {
-		console.log("jwt valid")
 		return res.setHeader("Cache-Control", "no-cache").sendStatus(200);
 	} else {
-		console.log("jwt invalid")
 		return res.sendStatus(401);
 	}
 })
