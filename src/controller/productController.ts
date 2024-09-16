@@ -48,6 +48,29 @@ router.get('/products/image/:imageName/', async (req, res) => {
 	res.sendFile(imageName, { root: IMAGE_BASE_PATH,  });
 })
 
+router.delete('/product/:product_id', checkTokenMiddleware, async (req, res) => {
+	const productId = req.params.product_id;
+
+	if (!productId) {
+		res.sendStatus(400);
+	}
+
+	const product = await ProductModel.findOneAndDelete({ _id: productId });
+
+	if(!product) {
+		return res.sendStatus(404);
+	}
+
+	if (product.images.length > 0) {
+		try {
+			const dir = product.images[0].split(/\//)[0];
+			console.log('Deleting dir:', dir);
+			fs.rmSync(`${process.env.FILE_UPLOAD_DEST}/${dir}`, { force: true, recursive: true, });
+		} catch (_) {}
+	}
+	res.sendStatus(200);
+})
+
 router.post(
 	'/product',
 	checkTokenMiddleware,
