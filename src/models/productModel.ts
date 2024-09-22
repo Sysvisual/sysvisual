@@ -23,7 +23,7 @@ const productModel = new mongoose.Schema<Product>({
 })
 
 productModel.pre('save', function(next) {
-  if (this.price < 0) return next(new mongoose.Error.ValidationError());;
+  if (this.price < 0) return next(new mongoose.Error.ValidationError());
   next();
 });
 

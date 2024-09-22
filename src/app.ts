@@ -19,7 +19,7 @@ export default async function (): Promise<express.Express> {
 			connectTimeoutMS: 5000,
 			auth: {
 				username: process.env.DB_USERNAME,
-				password: process.env.DB_PASSWORD,
+				password: Buffer.from(process.env.DB_PASSWORD ?? '', 'base64').toString(),
 			},
 			authSource: 'admin'
 		});

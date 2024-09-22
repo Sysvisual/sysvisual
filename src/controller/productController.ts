@@ -69,7 +69,35 @@ router.delete('/product/:product_id', checkTokenMiddleware, async (req, res) => 
 		} catch (_) {}
 	}
 	res.sendStatus(200);
-})
+});
+
+router.post(
+	'/product/:productId',
+	checkTokenMiddleware,
+	checkNoEmptyBody,
+	async (req, res) => {
+		const productId = req.params.productId;
+		const title = req.body.title;
+		const description = req.body.description;
+		const price = req.body.price;
+
+		if (
+			productId === undefined ||
+			title === undefined ||
+			description === undefined ||
+			price === undefined
+		) {
+			return res.sendStatus(400);
+		}
+
+		try {
+			const test = await productModel.findOneAndUpdate({ _id: productId }, { title, description, price }, { new: true });
+			res.sendStatus(200);
+		} catch (_) {
+			res.sendStatus(500);
+		}
+	}
+)
 
 router.post(
 	'/product',
