@@ -8,9 +8,11 @@ RUN npm run build
 # production stage
 FROM node:lts-slim as production-stage
 COPY --from=builder /app/dist /app
-COPY --from=builder /app/.env /app/.env
-COPY --from=builder /app/package*.json /app
+COPY --from=builder /app/.env.prod /app/.env
+COPY --from=builder /app/package*.json /app/
 COPY --from=builder /app/node_modules /app/node_modules
+
+VOLUME ["/app/upload"]
 
 WORKDIR /app
 EXPOSE 8080

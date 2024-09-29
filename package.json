@@ -8,8 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./dist/server.js",
     "start:dev": "nodemon",
-    "start:mongo": "docker run -d -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=example -e MONGO_INITDB_DATABASE=sysvisual -p 27017:27017 mongo",
-    "docker:build": "docker build -t veenixdev/lasermatti-backend:latest ."
+    "start:mongo": "docker run -d -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD='ImVe3nix!§\"' -e MONGO_INITDB_DATABASE=sysvisual -p 27017:27017 --name sysvisual-db mongo",
+    "docker:build": "docker build -t veenixdev/sysvisual:latest ."
   },
   "author": "",
   "license": "ISC",
@@ -30,6 +30,7 @@
     "@types/multer": "^1.4.11",
     "@types/node": "^20.11.30",
     "nodemon": "^3.1.0",
+    "prettier": "^3.3.3",
     "typescript": "^5.4.3"
   }
 }

@@ -121,5 +121,8 @@ dist
 # VSCode file history extension
 .history/
 
+# WebStorm
+.idea/
+
 # Application specific
 upload/

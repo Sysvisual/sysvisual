@@ -7,12 +7,14 @@ import { generateJWT, verifyJWT } from '../utils/jwt';
 const router = Router();
 
 router.get('/is-logged-in', async (req, res) => {
+	res.setHeader("Cache-Control", "no-cache");
+
 	if (!req.cookies.token) {
 		return res.sendStatus(401);
 	}
 
 	if (await verifyJWT(req.cookies.token as string)) {
-		return res.setHeader("Cache-Control", "no-cache").sendStatus(200);
+		return res.sendStatus(200);
 	} else {
 		return res.sendStatus(401);
 	}
@@ -40,8 +42,9 @@ router.post('/login', async (req, res) => {
 	}
 
 	if (await bcrypt.compare(password, user.password)) {
-		const token = await generateJWT(user);//generateAlphanumericStr(tokenLength);
+		const token = await generateJWT(user);
 
+		// TODO: Add domain to equal the domain of the site that requested
 		res.cookie('token', token, { maxAge: Math.floor((Date.now() / 1000) + (60 * 60 * 2)), sameSite: "none", secure: process.env.ENVIRONMENT !== 'LOCAL' });
 		res.sendStatus(200);
 	} else {
