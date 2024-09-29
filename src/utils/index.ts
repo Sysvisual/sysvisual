@@ -3,7 +3,7 @@ export const generateAlphanumericStr = (length: number = 12): string => {
 		throw new Error('Password length can not be shorter than 1 character!');
 	}
 
-	let possibleCharacters = ALPHANUMERIC.length;
+	const possibleCharacters = ALPHANUMERIC.length;
 	let result = '';
 	for (let i = 0; i < length; i++) {
 		result += ALPHANUMERIC.charAt(Math.random() * possibleCharacters);

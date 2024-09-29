@@ -1,4 +1,4 @@
-import { Router, Express } from 'express';
+import { Router } from 'express';
 import ProductModel from '../models/productModel';
 import productModel from '../models/productModel';
 import fileUpload from '../middleware/fileUpload';
@@ -18,7 +18,7 @@ router.get('/products', async (req, res) => {
 		return res
 			.status(200)
 			.json(result.map((product) => mapProductToDTO(product)));
-	} catch (err) {
+	} catch (_: unknown) {
 		res.sendStatus(500);
 	}
 });
@@ -34,7 +34,7 @@ router.get('/product/:product_id', async (req, res) => {
 		}
 
 		return res.status(200).json(mapProductToDTO(result));
-	} catch (err) {
+	} catch (_) {
 		res.sendStatus(500);
 	}
 });
@@ -74,7 +74,9 @@ router.delete(
 					force: true,
 					recursive: true,
 				});
-			} catch (_) {}
+			} catch (_) {
+				res.sendStatus(500);
+			}
 		}
 		res.sendStatus(200);
 	}
@@ -100,7 +102,7 @@ router.post(
 		}
 
 		try {
-			const test = await productModel.findOneAndUpdate(
+			await productModel.findOneAndUpdate(
 				{ _id: productId },
 				{
 					title,
@@ -140,12 +142,12 @@ router.post(
 
 			if (imageFiles) {
 				if (imageFiles instanceof Array) {
-					for (let file of imageFiles) {
+					for (const file of imageFiles) {
 						imageFileNames.push(file.filename);
 					}
 				} else {
-					for (let directory in imageFiles) {
-						for (let file of imageFiles[directory]) {
+					for (const directory in imageFiles) {
+						for (const file of imageFiles[directory]) {
 							imageFileNames.push(`${directory}/${file}`);
 						}
 					}
@@ -164,7 +166,7 @@ router.post(
 			});
 
 			res.sendStatus(201);
-		} catch (err) {
+		} catch (_) {
 			res.sendStatus(500);
 		}
 	}

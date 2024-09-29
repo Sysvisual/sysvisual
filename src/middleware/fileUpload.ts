@@ -1,6 +1,5 @@
 import multer from 'multer';
 import fs from 'fs';
-import { urlencoded } from 'express';
 
 if (!fs.existsSync(process.env.FILE_UPLOAD_DEST ?? '')) {
 	fs.mkdirSync(process.env.FILE_UPLOAD_DEST ?? '');
