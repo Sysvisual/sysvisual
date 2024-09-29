@@ -20,6 +20,11 @@ const productModel = new mongoose.Schema<Product>({
 		type: [Types.String],
 		required: true,
 	},
+	categories: {
+		type: [Types.String],
+		required: true,
+		ref: 'categories',
+	},
 });
 
 productModel.pre('save', function (next) {

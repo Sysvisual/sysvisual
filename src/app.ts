@@ -56,7 +56,7 @@ async function createDefaultUsers(): Promise<void> {
 	if (userCount <= 0) {
 		const password =
 			environment === 'LOCAL' ? 'admin' : generateAlphanumericStr(12);
-		const username = 'lasermatti';
+		const username = environment === 'LOCAL' ? 'admin' : 'lasermatti';
 
 		const user = new UserModel({
 			username,

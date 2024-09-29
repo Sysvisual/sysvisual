@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { CookieOptions, Router } from 'express';
 import bcrypt from 'bcrypt';
 import userModel from '../models/userModel';
 import { User } from '../interface/User';
@@ -44,12 +44,14 @@ router.post('/login', async (req, res) => {
 	if (await bcrypt.compare(password, user.password)) {
 		const token = await generateJWT(user);
 
-		// TODO: Add domain to equal the domain of the site that requested
-		res.cookie('token', token, {
-			maxAge: Math.floor(Date.now() / 1000 + 60 * 60 * 2),
+		const cookieOptions: CookieOptions = {
+			maxAge: 60 * 60 * 2 * 1000,
 			sameSite: 'none',
-			secure: process.env.ENVIRONMENT !== 'LOCAL',
-		});
+			secure: true,
+			httpOnly: true,
+		};
+
+		res.cookie('token', token, cookieOptions);
 		res.sendStatus(200);
 	} else {
 		res.sendStatus(401);
