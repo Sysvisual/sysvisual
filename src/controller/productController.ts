@@ -15,7 +15,9 @@ router.get('/products', async (req, res) => {
 			.select(['_id', 'title', 'description', 'price', 'images'])
 			.exec();
 
-		return res.status(200).json(result.map((product) => mapProductToDTO(product)));
+		return res
+			.status(200)
+			.json(result.map((product) => mapProductToDTO(product)));
 	} catch (err) {
 		res.sendStatus(500);
 	}
@@ -38,38 +40,45 @@ router.get('/product/:product_id', async (req, res) => {
 });
 
 router.get('/products/image/:imageName/', async (req, res) => {
-	const IMAGE_BASE_PATH = process.env.FILE_UPLOAD_DEST ?? "/upload";
+	const IMAGE_BASE_PATH = process.env.FILE_UPLOAD_DEST ?? '/upload';
 	const imageName = req.params.imageName;
 
 	if (!fs.existsSync(`${IMAGE_BASE_PATH}${imageName}`)) {
 		return res.sendStatus(404);
 	}
 
-	res.sendFile(imageName, { root: IMAGE_BASE_PATH,  });
-})
-
-router.delete('/product/:product_id', checkTokenMiddleware, async (req, res) => {
-	const productId = req.params.product_id;
-
-	if (!productId) {
-		res.sendStatus(400);
-	}
-
-	const product = await ProductModel.findOneAndDelete({ _id: productId });
-
-	if(!product) {
-		return res.sendStatus(404);
-	}
-
-	if (product.images.length > 0) {
-		try {
-			const dir = product.images[0].split(/\//)[0];
-			console.log('Deleting dir:', dir);
-			fs.rmSync(`${process.env.FILE_UPLOAD_DEST}/${dir}`, { force: true, recursive: true, });
-		} catch (_) {}
-	}
-	res.sendStatus(200);
+	res.sendFile(imageName, { root: IMAGE_BASE_PATH });
 });
+
+router.delete(
+	'/product/:product_id',
+	checkTokenMiddleware,
+	async (req, res) => {
+		const productId = req.params.product_id;
+
+		if (!productId) {
+			res.sendStatus(400);
+		}
+
+		const product = await ProductModel.findOneAndDelete({ _id: productId });
+
+		if (!product) {
+			return res.sendStatus(404);
+		}
+
+		if (product.images.length > 0) {
+			try {
+				const dir = product.images[0].split(/\//)[0];
+				console.log('Deleting dir:', dir);
+				fs.rmSync(`${process.env.FILE_UPLOAD_DEST}/${dir}`, {
+					force: true,
+					recursive: true,
+				});
+			} catch (_) {}
+		}
+		res.sendStatus(200);
+	}
+);
 
 router.post(
 	'/product/:productId',
@@ -91,13 +100,21 @@ router.post(
 		}
 
 		try {
-			const test = await productModel.findOneAndUpdate({ _id: productId }, { title, description, price }, { new: true });
+			const test = await productModel.findOneAndUpdate(
+				{ _id: productId },
+				{
+					title,
+					description,
+					price,
+				},
+				{ new: true }
+			);
 			res.sendStatus(200);
 		} catch (_) {
 			res.sendStatus(500);
 		}
 	}
-)
+);
 
 router.post(
 	'/product',
@@ -119,7 +136,7 @@ router.post(
 		}
 
 		try {
-			const imageFileNames: Array<string> | undefined = new Array<string>()
+			const imageFileNames: Array<string> | undefined = new Array<string>();
 
 			if (imageFiles) {
 				if (imageFiles instanceof Array) {
@@ -128,14 +145,16 @@ router.post(
 					}
 				} else {
 					for (let directory in imageFiles) {
-						for(let file of imageFiles[directory]) {
+						for (let file of imageFiles[directory]) {
 							imageFileNames.push(`${directory}/${file}`);
 						}
 					}
 				}
 			}
 
-			const transformedFileNames: Array<string> = imageFileNames.map(fileName => `${req.headers['X-RandomUUID']}/${fileName}`);
+			const transformedFileNames: Array<string> = imageFileNames.map(
+				(fileName) => `${req.headers['X-RandomUUID']}/${fileName}`
+			);
 
 			await productModel.create({
 				title,
@@ -143,7 +162,6 @@ router.post(
 				price,
 				images: transformedFileNames,
 			});
-
 
 			res.sendStatus(201);
 		} catch (err) {

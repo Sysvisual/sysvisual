@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 		const uploadDir = `${fileUploadDest}/${randomUUID}`;
 
 		req.headers['X-RandomUUID'] = randomUUID;
-		if(!fs.existsSync(uploadDir)) {
+		if (!fs.existsSync(uploadDir)) {
 			fs.mkdirSync(uploadDir);
 		}
 		cb(null, uploadDir);

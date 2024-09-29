@@ -13,6 +13,6 @@ const _logRequest = (req: Request, _: Response, next: NextFunction) => {
 
 	console.log(`Got request for ${req.method} ${req.path} ${bodyStr ?? ''}`);
 	next();
-}
+};
 
 export const logRequest = _logRequest;

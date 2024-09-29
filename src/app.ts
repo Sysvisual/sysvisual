@@ -12,16 +12,20 @@ export default async function (): Promise<express.Express> {
 	const app = express();
 
 	try {
-		const mongoUrl = `mongodb://${process.env.DB_HOST ?? 'localhost'}:${process.env.DB_PORT ?? '27017'
-			}/${process.env.DB_NAME ?? 'sysvisual'}`;
+		const mongoUrl = `mongodb://${process.env.DB_HOST ?? 'localhost'}:${
+			process.env.DB_PORT ?? '27017'
+		}/${process.env.DB_NAME ?? 'sysvisual'}`;
 
 		await mongoose.connect(mongoUrl, {
 			connectTimeoutMS: 5000,
 			auth: {
 				username: process.env.DB_USERNAME,
-				password: Buffer.from(process.env.DB_PASSWORD ?? '', 'base64').toString(),
+				password: Buffer.from(
+					process.env.DB_PASSWORD ?? '',
+					'base64'
+				).toString(),
 			},
-			authSource: 'admin'
+			authSource: 'admin',
 		});
 
 		await createDefaultUsers();
@@ -32,7 +36,9 @@ export default async function (): Promise<express.Express> {
 		console.log(error);
 	}
 
-	console.log(`Uploaded files will be saved to: ${process.env.FILE_UPLOAD_DEST}`);
+	console.log(
+		`Uploaded files will be saved to: ${process.env.FILE_UPLOAD_DEST}`
+	);
 
 	app.use(express.json());
 	app.use(cookieParser());
@@ -48,7 +54,8 @@ async function createDefaultUsers(): Promise<void> {
 
 	const environment = process.env.ENVIRONMENT;
 	if (userCount <= 0) {
-		const password = environment === 'LOCAL' ? 'admin' : generateAlphanumericStr(12);
+		const password =
+			environment === 'LOCAL' ? 'admin' : generateAlphanumericStr(12);
 		const username = 'lasermatti';
 
 		const user = new UserModel({

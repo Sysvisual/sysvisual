@@ -7,7 +7,7 @@ import { generateJWT, verifyJWT } from '../utils/jwt';
 const router = Router();
 
 router.get('/is-logged-in', async (req, res) => {
-	res.setHeader("Cache-Control", "no-cache");
+	res.setHeader('Cache-Control', 'no-cache');
 
 	if (!req.cookies.token) {
 		return res.sendStatus(401);
@@ -18,7 +18,7 @@ router.get('/is-logged-in', async (req, res) => {
 	} else {
 		return res.sendStatus(401);
 	}
-})
+});
 
 router.post('/login', async (req, res) => {
 	if (!req.body) {
@@ -45,7 +45,11 @@ router.post('/login', async (req, res) => {
 		const token = await generateJWT(user);
 
 		// TODO: Add domain to equal the domain of the site that requested
-		res.cookie('token', token, { maxAge: Math.floor((Date.now() / 1000) + (60 * 60 * 2)), sameSite: "none", secure: process.env.ENVIRONMENT !== 'LOCAL' });
+		res.cookie('token', token, {
+			maxAge: Math.floor(Date.now() / 1000 + 60 * 60 * 2),
+			sameSite: 'none',
+			secure: process.env.ENVIRONMENT !== 'LOCAL',
+		});
 		res.sendStatus(200);
 	} else {
 		res.sendStatus(401);
