@@ -3,6 +3,7 @@ export interface Product {
 	description: string;
 	images: Array<string>;
 	price: number;
+	categories: Array<string>;
 }
 
 export interface ProductDTO {
@@ -11,4 +12,5 @@ export interface ProductDTO {
 	description: string;
 	images: Array<string>;
 	price: number;
+	categories: Array<string>;
 }
