@@ -18,11 +18,10 @@ const checkAuth = (req: Request): boolean => {
 };
 
 router.get('/', async (req, res) => {
-	const showHidden = req.query.showHidden ?? false;
+	let showHidden = Boolean(req.query.showHidden ?? false);
 
 	if (showHidden && !checkAuth(req)) {
-		res.sendStatus(401);
-		return;
+		showHidden = false;
 	}
 
 	try {
@@ -49,10 +48,10 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:product_id', async (req, res) => {
-	const showHidden = req.query.showHidden ?? false;
+	const showHidden = Boolean(req.query.showHidden ?? false);
 
 	if (showHidden && !checkAuth(req)) {
-		res.sendStatus(401);
+		res.sendStatus(404);
 	}
 
 	try {

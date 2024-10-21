@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Request, Router } from 'express';
 import CategoryModel from '../models/categoryModel';
 import { mapCategoryToDTO, WithId } from '../utils/objectMapper';
 import { checkTokenMiddleware } from '../middleware/checkToken';
@@ -6,14 +6,38 @@ import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import { Category } from '../interface/Category';
 import { Product } from '../interface/Product';
 import ProductModel from '../models/productModel';
+import { verifyJWT } from '../utils/jwt';
+
 const router = Router();
 
-router.get('/', async (_, res) => {
+const checkAuth = (req: Request): boolean => {
+	const token = req.cookies['token'];
+
+	return !(undefined === token || !verifyJWT(token));
+};
+
+router.get('/', async (req, res) => {
+	let showHiddenProducts = Boolean(req.query.showHiddenProducts ?? false);
+
+	if (showHiddenProducts && !checkAuth(req)) {
+		showHiddenProducts = false;
+	}
+
 	try {
-		const result = await CategoryModel.find()
-			.select(['_id', 'name', 'description', 'items'])
-			.populate('items')
-			.exec();
+		const query = CategoryModel.find().select([
+			'_id',
+			'name',
+			'description',
+			'items',
+		]);
+
+		if (!showHiddenProducts) {
+			query.populate({ path: 'items', match: { hidden: false } });
+		} else {
+			query.populate('items');
+		}
+
+		const result = await query.exec();
 
 		const mappedResult = result.map((category) =>
 			mapCategoryToDTO(
@@ -27,11 +51,24 @@ router.get('/', async (_, res) => {
 });
 
 router.get('/:category_id', async (req, res) => {
+	let showHiddenProducts = Boolean(req.query.showHiddenProducts ?? false);
+
+	if (showHiddenProducts && !checkAuth(req)) {
+		showHiddenProducts = false;
+	}
+
 	try {
-		const result = await CategoryModel.findOne({ _id: req.params.category_id })
-			.select(['_id', 'name', 'description', 'items'])
-			.populate('items')
-			.exec();
+		const query = CategoryModel.findOne({ _id: req.params.category_id }).select(
+			['_id', 'name', 'description', 'items']
+		);
+
+		if (!showHiddenProducts) {
+			query.populate({ path: 'items', match: { hidden: false } });
+		} else {
+			query.populate('items');
+		}
+
+		const result = await query.exec();
 
 		if (!result) {
 			return res.sendStatus(404);
