@@ -4,9 +4,11 @@ import mongoose from 'mongoose';
 
 import defaultController from './controller/defaultController';
 import UserModel from './models/userModel';
-import { generateAlphanumericStr } from './utils';
+import { generateAlphanumericStr, getLogger } from './utils';
 import { logRequest } from './middleware/logRequest';
 import { cors } from './middleware/cors';
+
+const logger = getLogger();
 
 export default async function (): Promise<express.Express> {
 	const app = express();
@@ -16,6 +18,7 @@ export default async function (): Promise<express.Express> {
 			process.env.DB_PORT ?? '27017'
 		}/${process.env.DB_NAME ?? 'sysvisual'}`;
 
+		mongoose.set('strictQuery', false);
 		await mongoose.connect(mongoUrl, {
 			connectTimeoutMS: 5000,
 			auth: {
@@ -30,15 +33,10 @@ export default async function (): Promise<express.Express> {
 
 		await createDefaultUsers();
 
-		console.log('Successfully connected to the database.');
+		logger.info('Successfully connected to the database.');
 	} catch (error) {
-		console.log('Not successfully connected to the database.');
-		console.log(error);
+		logger.error('Not successfully connected to the database.', { error });
 	}
-
-	console.log(
-		`Uploaded files will be saved to: ${process.env.FILE_UPLOAD_DEST}`
-	);
 
 	app.use(express.json());
 	app.use(cookieParser());
@@ -65,11 +63,11 @@ async function createDefaultUsers(): Promise<void> {
 
 		const savedUser = await user.save();
 		if (!savedUser) {
-			console.error('Error occurred while creating default users!');
+			logger.error('Error occurred while creating default users!');
 			return;
 		}
 
-		console.log(
+		console.info(
 			`Created user with username: "${username}" and password: "${password}". !!! THIS INFO WILL NOT DISPLAYED ANOTHER TIME SAVE IT !!!"`
 		);
 	}
