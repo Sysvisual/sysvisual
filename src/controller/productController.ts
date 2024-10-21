@@ -67,7 +67,6 @@ router.delete('/:product_id', checkTokenMiddleware, async (req, res) => {
 	if (product.images.length > 0) {
 		try {
 			const dir = product.images[0].split(/\//)[0];
-			console.log('Deleting dir:', dir);
 			fs.rmSync(`${process.env.FILE_UPLOAD_DEST}/${dir}`, {
 				force: true,
 				recursive: true,

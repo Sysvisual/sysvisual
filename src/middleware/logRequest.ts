@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
+import { getLogger } from '../utils';
 
-const _logRequest = (req: Request, _: Response, next: NextFunction) => {
+const logger = getLogger();
+
+export const logRequest = (req: Request, _: Response, next: NextFunction) => {
 	let bodyStr = undefined;
 
 	if (['POST', 'PATCH'].includes(req.method) && req.body) {
@@ -11,8 +14,6 @@ const _logRequest = (req: Request, _: Response, next: NextFunction) => {
 		bodyStr = `with readacted body content`;
 	}
 
-	console.log(`Got request for ${req.method} ${req.path} ${bodyStr ?? ''}`);
+	logger.info(`Got request for ${req.method} ${req.path} ${bodyStr ?? ''}`);
 	next();
 };
-
-export const logRequest = _logRequest;
