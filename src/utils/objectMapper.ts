@@ -13,7 +13,7 @@ const mapProductToDTO = (product: WithId<Product>): ProductDTO => {
 		id: product._id.toString(),
 		title: product.title,
 		description: product.description,
-		price: product.price,
+		price: product.price / 100,
 		images: product.images,
 		categories: product.categories,
 	};

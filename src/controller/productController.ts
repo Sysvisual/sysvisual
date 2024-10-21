@@ -118,7 +118,7 @@ router.post(
 				{
 					title,
 					description,
-					price,
+					price: (price * 100).toFixed(2),
 				},
 				{ new: true }
 			);
@@ -172,7 +172,7 @@ router.post(
 			await productModel.create({
 				title,
 				description,
-				price,
+				price: (price * 100).toFixed(2),
 				images: transformedFileNames,
 			});
 
