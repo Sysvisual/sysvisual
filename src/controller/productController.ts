@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import ProductModel from '../models/productModel';
 import productModel from '../models/productModel';
 import fileUpload from '../middleware/fileUpload';
@@ -7,30 +7,68 @@ import { mapProductToDTO } from '../utils/objectMapper';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import fs from 'fs';
 import CategoryModel from '../models/categoryModel';
+import { verifyJWT } from '../utils/jwt';
 
 const router = Router();
 
-router.get('/', async (_, res) => {
+const checkAuth = (req: Request): boolean => {
+	const token = req.cookies['token'];
+
+	return !(undefined === token || !verifyJWT(token));
+};
+
+router.get('/', async (req, res) => {
+	const showHidden = req.query.showHidden ?? false;
+
+	if (showHidden && !checkAuth(req)) {
+		res.sendStatus(401);
+		return;
+	}
+
 	try {
-		const result = await ProductModel.find()
-			.select(['_id', 'title', 'description', 'price', 'images', 'categories'])
+		const dbResult = await ProductModel.find()
+			.select([
+				'_id',
+				'title',
+				'description',
+				'price',
+				'hidden',
+				'images',
+				'categories',
+			])
 			.exec();
 
-		return res
-			.status(200)
-			.json(result.map((product) => mapProductToDTO(product)));
+		const result = dbResult
+			.filter((p) => (showHidden ? true : !p.hidden))
+			.map((p) => mapProductToDTO(p));
+
+		return res.status(200).json(result);
 	} catch (_: unknown) {
 		res.sendStatus(500);
 	}
 });
 
 router.get('/:product_id', async (req, res) => {
+	const showHidden = req.query.showHidden ?? false;
+
+	if (showHidden && !checkAuth(req)) {
+		res.sendStatus(401);
+	}
+
 	try {
 		const result = await ProductModel.findOne({ _id: req.params.product_id })
-			.select(['_id', 'title', 'description', 'price', 'images', 'categories'])
+			.select([
+				'_id',
+				'title',
+				'description',
+				'price',
+				'hidden',
+				'images',
+				'categories',
+			])
 			.exec();
 
-		if (!result) {
+		if (!result || (!showHidden && result.hidden)) {
 			return res.sendStatus(404);
 		}
 
@@ -101,12 +139,14 @@ router.post(
 		const title = req.body.title;
 		const description = req.body.description;
 		const price = req.body.price;
+		const hidden = req.body.hidden;
 
 		if (
 			productId === undefined ||
 			title === undefined ||
 			description === undefined ||
-			price === undefined
+			price === undefined ||
+			hidden === undefined
 		) {
 			return res.sendStatus(400);
 		}
@@ -117,6 +157,7 @@ router.post(
 				{
 					title,
 					description,
+					hidden,
 					price: (price * 100).toFixed(2),
 				},
 				{ new: true }
@@ -137,12 +178,14 @@ router.post(
 		const title = req.body.title;
 		const description = req.body.description;
 		const price = req.body.price;
+		const hidden = req.body.hidden;
 		const imageFiles = req.files;
 
 		if (
 			title === undefined ||
 			description === undefined ||
-			price === undefined
+			price === undefined ||
+			hidden === undefined
 		) {
 			return res.sendStatus(400);
 		}
@@ -171,6 +214,7 @@ router.post(
 			await productModel.create({
 				title,
 				description,
+				hidden,
 				price: (price * 100).toFixed(2),
 				images: transformedFileNames,
 			});
