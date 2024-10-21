@@ -21,7 +21,10 @@ const generateJWT = async (user: User) => {
 	);
 };
 
-const verifyJWT = async (token: string): Promise<boolean> => {
+const verifyJWT = async (token?: string): Promise<boolean> => {
+	if (!token) {
+		return false;
+	}
 	if (!process.env.JWT_SECRET) {
 		throw new Error('Cannot verify JWT: Missing secret in .env!');
 	}

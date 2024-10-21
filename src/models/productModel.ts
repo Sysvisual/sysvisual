@@ -25,6 +25,10 @@ const productModel = new mongoose.Schema<Product>({
 		required: true,
 		ref: 'categories',
 	},
+	hidden: {
+		type: Types.Boolean,
+		default: false,
+	},
 });
 
 productModel.pre('save', function (next) {

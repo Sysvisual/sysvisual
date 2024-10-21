@@ -15,6 +15,7 @@ const mapProductToDTO = (product: WithId<Product>): ProductDTO => {
 		description: product.description,
 		price: product.price / 100,
 		images: product.images,
+		hidden: product.hidden,
 		categories: product.categories,
 	};
 };
