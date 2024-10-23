@@ -1,26 +1,10 @@
 import fs from 'fs';
 
-const getFile = async (
-	productId: string,
-	imageName: string
-): Promise<Buffer> => {
-	return fs.readFileSync(
-		`${process.env.FILE_UPLOAD_DEST}/${productId}/${imageName}`
-	);
+const IMAGE_BASE_PATH = process.env.FILE_UPLOAD_DEST ?? '/upload';
+const deleteImages = async (imagePaths: string[]) => {
+	for (const image of imagePaths) {
+		fs.rmSync(`${IMAGE_BASE_PATH}${image}`, { force: true });
+	}
 };
 
-const writeFile = async (
-	productId: string,
-	imageName: string,
-	file: Buffer
-): Promise<void> => {
-	fs.writeFileSync(
-		`${process.env.FILE_UPLOAD_DEST}/${productId}/${imageName}`,
-		file
-	);
-};
-
-export default {
-	getFile,
-	writeFile,
-};
+export { deleteImages };

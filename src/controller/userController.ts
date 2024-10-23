@@ -2,7 +2,7 @@ import { CookieOptions, Router } from 'express';
 import bcrypt from 'bcrypt';
 import userModel from '../models/userModel';
 import { User } from '../interface/User';
-import { generateJWT, verifyJWT } from '../utils/jwt';
+import { generateJWT, verifyJWT } from '../auth/jwt';
 
 const router = Router();
 
