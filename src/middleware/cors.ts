@@ -21,11 +21,14 @@ const cors = (req: Request, res: Response, next: NextFunction) => {
 	res.setHeader('Access-Control-Allow-Credentials', 'true');
 	res.setHeader(
 		'Access-Control-Allow-Methods',
-		'GET, POST, PATCH, DELETE, OPTIONS'
+		'GET, POST, PUT, PATCH, DELETE, OPTIONS'
 	);
 
-	if ('OPTIONS' === req.method) res.sendStatus(200);
-	else next();
+	if ('OPTIONS' === req.method) {
+		res.sendStatus(200);
+	} else {
+		next();
+	}
 };
 
 function getDomain(origin: string): string {

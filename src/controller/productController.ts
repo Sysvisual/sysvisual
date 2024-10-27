@@ -1,15 +1,17 @@
 import { Router, Request } from 'express';
 import ProductModel from '../models/productModel';
 import productModel from '../models/productModel';
-import fileUpload from '../middleware/fileUpload';
 import { checkTokenMiddleware } from '../middleware/checkToken';
 import { mapProductToDTO } from '../utils/objectMapper';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import fs from 'fs';
 import CategoryModel from '../models/categoryModel';
-import { verifyJWT } from '../utils/jwt';
+import { verifyJWT } from '../auth/jwt';
+import { deleteImages } from '../utils/fileHandler';
+import { getLogger } from '../utils';
 
 const router = Router();
+const logger = getLogger();
 
 const checkAuth = (req: Request): boolean => {
 	const token = req.cookies['token'];
@@ -77,17 +79,6 @@ router.get('/:product_id', async (req, res) => {
 	}
 });
 
-router.get('/image/:imageName/', async (req, res) => {
-	const IMAGE_BASE_PATH = process.env.FILE_UPLOAD_DEST ?? '/upload';
-	const imageName = req.params.imageName;
-
-	if (!fs.existsSync(`${IMAGE_BASE_PATH}${imageName}`)) {
-		return res.sendStatus(404);
-	}
-
-	res.sendFile(imageName, { root: IMAGE_BASE_PATH });
-});
-
 router.delete('/:product_id', checkTokenMiddleware, async (req, res) => {
 	const productId = req.params.product_id;
 
@@ -101,20 +92,27 @@ router.delete('/:product_id', checkTokenMiddleware, async (req, res) => {
 		return res.sendStatus(404);
 	}
 
+	const dirSet = new Set();
+
+	for (const image of product.images) {
+		dirSet.add(image.split(/\//)[0]);
+	}
+
 	if (product.images.length > 0) {
 		try {
-			const dir = product.images[0].split(/\//)[0];
-			fs.rmSync(`${process.env.FILE_UPLOAD_DEST}/${dir}`, {
-				force: true,
-				recursive: true,
-			});
+			for (const dir of dirSet) {
+				fs.rmSync(`${process.env.FILE_UPLOAD_DEST}/${dir}`, {
+					force: true,
+					recursive: true,
+				});
+			}
 		} catch (_) {
 			res.sendStatus(500);
 		}
 	}
 
 	if (product.categories.length > 0) {
-		CategoryModel.updateMany(
+		await CategoryModel.updateMany(
 			{},
 			{
 				$pull: {
@@ -129,7 +127,7 @@ router.delete('/:product_id', checkTokenMiddleware, async (req, res) => {
 	res.sendStatus(200);
 });
 
-router.post(
+router.put(
 	'/:productId',
 	checkTokenMiddleware,
 	checkNoEmptyBody,
@@ -138,6 +136,7 @@ router.post(
 		const title = req.body.title;
 		const description = req.body.description;
 		const price = req.body.price;
+		const images = req.body.images ?? [];
 		const hidden = req.body.hidden;
 
 		if (
@@ -151,78 +150,64 @@ router.post(
 		}
 
 		try {
-			await productModel.findOneAndUpdate(
+			const oldProduct = await productModel.findOneAndUpdate(
 				{ _id: productId },
 				{
 					title,
 					description,
 					hidden,
+					images,
 					price: (price * 100).toFixed(2),
-				},
-				{ new: true }
-			);
-			res.sendStatus(200);
-		} catch (_) {
-			res.sendStatus(500);
-		}
-	}
-);
-
-router.post(
-	'/',
-	checkTokenMiddleware,
-	checkNoEmptyBody,
-	fileUpload.array('images'),
-	async (req, res) => {
-		const title = req.body.title;
-		const description = req.body.description;
-		const price = req.body.price;
-		const hidden = req.body.hidden;
-		const imageFiles = req.files;
-
-		if (
-			title === undefined ||
-			description === undefined ||
-			price === undefined ||
-			hidden === undefined
-		) {
-			return res.sendStatus(400);
-		}
-
-		try {
-			const imageFileNames: Array<string> | undefined = new Array<string>();
-
-			if (imageFiles) {
-				if (imageFiles instanceof Array) {
-					for (const file of imageFiles) {
-						imageFileNames.push(file.filename);
-					}
-				} else {
-					for (const directory in imageFiles) {
-						for (const file of imageFiles[directory]) {
-							imageFileNames.push(`${directory}/${file}`);
-						}
-					}
 				}
+			);
+
+			if (!oldProduct) {
+				return res.sendStatus(404);
 			}
 
-			const transformedFileNames: Array<string> = imageFileNames.map(
-				(fileName) => `${req.headers['X-RandomUUID']}/${fileName}`
+			const removedImages = oldProduct.images.filter(
+				(img) => !images.includes(img)
 			);
+			await deleteImages(removedImages);
 
-			await productModel.create({
-				title,
-				description,
-				hidden,
-				price: (price * 100).toFixed(2),
-				images: transformedFileNames,
-			});
-
-			res.sendStatus(201);
-		} catch (_) {
+			res.sendStatus(200);
+		} catch (error) {
+			logger.error('Could edit the product', { error });
 			res.sendStatus(500);
 		}
 	}
 );
+
+router.post('/', checkTokenMiddleware, checkNoEmptyBody, async (req, res) => {
+	const title = req.body.title;
+	const description = req.body.description;
+	const price = req.body.price;
+	const hidden = req.body.hidden;
+	const images = req.body.images ?? [];
+
+	if (
+		title === undefined ||
+		description === undefined ||
+		price === undefined ||
+		hidden === undefined
+	) {
+		return res.sendStatus(400);
+	}
+
+	try {
+		await productModel.create({
+			title,
+			description,
+			hidden,
+			price: (price * 100).toFixed(2),
+			images,
+		});
+
+		res.sendStatus(201);
+	} catch (error) {
+		logger.error('Could not create product', { error });
+		res.sendStatus(500);
+	}
+});
 
 export default router;

@@ -6,7 +6,7 @@ import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import { Category } from '../interface/Category';
 import { Product } from '../interface/Product';
 import ProductModel from '../models/productModel';
-import { verifyJWT } from '../utils/jwt';
+import { verifyJWT } from '../auth/jwt';
 
 const router = Router();
 
@@ -104,7 +104,7 @@ router.delete('/:category_id', checkTokenMiddleware, async (req, res) => {
 	res.sendStatus(200);
 });
 
-router.post(
+router.put(
 	'/:category_id',
 	checkTokenMiddleware,
 	checkNoEmptyBody,
@@ -177,7 +177,7 @@ const updateProducts = async (categoryId: string, items: string[]) => {
 			_id: { $in: items },
 		},
 		{
-			$push: {
+			$addToSet: {
 				categories: categoryId,
 			},
 		}
