@@ -1,6 +1,6 @@
 import http from 'http';
 import app from './app';
-import { getLogger } from './utils';
+import { getLogger } from './shared/common/logger';
 
 const logger = getLogger();
 

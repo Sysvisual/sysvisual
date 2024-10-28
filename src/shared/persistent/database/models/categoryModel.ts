@@ -17,6 +17,11 @@ const categorySchema = new mongoose.Schema<Category>({
 		required: true,
 		ref: 'products',
 	},
+	site: {
+		type: Types.String,
+		required: true,
+		ref: 'sites',
+	},
 });
 
 categorySchema.pre('save', function (next) {

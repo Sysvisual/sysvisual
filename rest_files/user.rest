@@ -1,9 +1,0 @@
-POST http://localhost:8080/login
-Host: localhost
-Content-Type: application/json
-
-{
-  "username": "lasermatti",
-  "password": "34kpfv6qYHMo"
-}
-

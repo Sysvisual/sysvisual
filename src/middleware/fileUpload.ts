@@ -1,5 +1,6 @@
 import multer from 'multer';
 import fs from 'fs';
+import { getSite } from '../shared/common/requestUtils';
 
 if (!fs.existsSync(process.env.FILE_UPLOAD_DEST ?? '')) {
 	fs.mkdirSync(process.env.FILE_UPLOAD_DEST ?? '');
@@ -12,10 +13,9 @@ const storage = multer.diskStorage({
 		if (!fileUploadDest) {
 			return cb(new Error('file upload destination is not set!'), '');
 		}
-		const randomUUID = req.headers['X-RandomUUID'] ?? crypto.randomUUID();
+		const randomUUID = getSite(req)._id ?? crypto.randomUUID();
 		const uploadDir = `${fileUploadDest}/${randomUUID}`;
 
-		req.headers['X-RandomUUID'] = randomUUID;
 		if (!fs.existsSync(uploadDir)) {
 			fs.mkdirSync(uploadDir);
 		}

@@ -12,7 +12,7 @@ A content management system for creating shops and other web-based applications.
 - [ ] Functionality
   - [ ] Shops
     - [ ] Edit product
-    - [ ] Shop customization
+    - [ ] Site customization
       - [ ] Color schema
       - [ ] Structure
     - [ ] Shopping cart

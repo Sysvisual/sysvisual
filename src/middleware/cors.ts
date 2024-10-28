@@ -10,8 +10,8 @@ const cors = (req: Request, res: Response, next: NextFunction) => {
 		whitelistedOrigins.indexOf(req.headers.origin) !== -1
 	) {
 		res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-		req.headers['X-Host'] = getDomain(req.headers.origin);
-		req.headers['X-Domain'] = req.headers.origin;
+		req.headers['X-Domain'] = getDomain(req.headers.origin);
+		req.headers['X-Host'] = req.headers.host;
 	}
 
 	res.setHeader(

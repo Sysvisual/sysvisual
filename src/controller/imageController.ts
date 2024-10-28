@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { checkTokenMiddleware } from '../middleware/checkToken';
 import fs from 'fs';
 import fileUpload from '../middleware/fileUpload';
-import ProductModel from '../models/productModel';
-import { getLogger } from '../utils';
+import { getSite } from '../shared/common/requestUtils';
+import { deleteImages } from '../shared/persistent/database/repository/ProductRepository';
 
 const router = Router();
 
@@ -11,8 +11,12 @@ const IMAGE_BASE_PATH = process.env.FILE_UPLOAD_DEST ?? '/upload';
 
 router.get('/:imageName', (req, res) => {
 	const imageName = req.params.imageName;
+	const imageSite = imageName.split('/')[0];
 
-	if (!fs.existsSync(`${IMAGE_BASE_PATH}${imageName}`)) {
+	if (
+		!fs.existsSync(`${IMAGE_BASE_PATH}${imageName}`) ||
+		imageSite !== getSite(req)._id.toString()
+	) {
 		return res.sendStatus(404);
 	}
 
@@ -20,31 +24,31 @@ router.get('/:imageName', (req, res) => {
 });
 
 router.delete('/:imageName', checkTokenMiddleware, async (req, res) => {
-	const image = req.params.imageName;
-	const imagePath = `${IMAGE_BASE_PATH}/${image}`;
-
-	if (!fs.existsSync(imagePath)) {
-		return res.sendStatus(404);
-	}
-
 	try {
-		await ProductModel.updateMany(
-			{},
-			{
-				$pull: {
-					images: {
-						$in: imagePath,
-					},
-				},
-			},
-			{ new: true }
+		const image = req.params.imageName;
+		const imagePath = `${IMAGE_BASE_PATH}/${image}`;
+		const imageSite = image.split('/')[0];
+
+		if (
+			!fs.existsSync(imagePath) ||
+			imageSite !== getSite(req)._id.toString()
+		) {
+			return res.sendStatus(404);
+		}
+
+		const deletedImages = await deleteImages(
+			getSite(req)._id.toString(),
+			imagePath
 		);
+
+		if (deletedImages.isError) {
+			return res.sendStatus(500);
+		}
+
+		res.sendStatus(200);
 	} catch (_) {
-		getLogger().error('Could not delete image', { path: imagePath });
 		return res.sendStatus(500);
 	}
-	fs.rmSync(imagePath);
-	res.sendStatus(200);
 });
 
 router.post(
@@ -74,7 +78,7 @@ router.post(
 		}
 
 		const transformedFileNames: Array<string> = imageFileNames.map(
-			(fileName) => `${req.headers['X-RandomUUID']}/${fileName}`
+			(fileName) => `${getSite(req)._id}/${fileName}`
 		);
 
 		res.status(200).json(transformedFileNames);

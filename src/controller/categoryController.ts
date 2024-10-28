@@ -1,107 +1,100 @@
-import { Request, Router } from 'express';
-import CategoryModel from '../models/categoryModel';
-import { mapCategoryToDTO, WithId } from '../utils/objectMapper';
+import { Router } from 'express';
+import { mapCategoryToDTO, WithId } from '../shared/persistent/objectMapper';
 import { checkTokenMiddleware } from '../middleware/checkToken';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
-import { Category } from '../interface/Category';
-import { Product } from '../interface/Product';
-import ProductModel from '../models/productModel';
-import { verifyJWT } from '../auth/jwt';
+import {
+	Category,
+	PopulatedCategory,
+} from '../shared/persistent/database/interface/Category';
+import { Product } from '../shared/persistent/database/interface/Product';
+import { checkAuth } from '../shared/auth/jwt';
+import {
+	createCategory,
+	deleteCategory,
+	getCategories,
+	getCategory,
+	updateCategory,
+} from '../shared/persistent/database/repository/CategoryRepository';
+import { updateCategories } from '../shared/persistent/database/repository/ProductRepository';
+import { getSite } from '../shared/common/requestUtils';
 
 const router = Router();
 
-const checkAuth = (req: Request): boolean => {
-	const token = req.cookies['token'];
-
-	return !(undefined === token || !verifyJWT(token));
-};
-
 router.get('/', async (req, res) => {
-	let showHiddenProducts = Boolean(req.query.showHiddenProducts ?? false);
-
-	if (showHiddenProducts && !checkAuth(req)) {
-		showHiddenProducts = false;
-	}
-
 	try {
-		const query = CategoryModel.find().select([
-			'_id',
-			'name',
-			'description',
-			'items',
-		]);
+		let showHiddenProducts = Boolean(req.query.showHiddenProducts ?? false);
 
-		if (!showHiddenProducts) {
-			query.populate({ path: 'items', match: { hidden: false } });
-		} else {
-			query.populate('items');
+		if (showHiddenProducts && !checkAuth(req)) {
+			showHiddenProducts = false;
 		}
 
-		const result = await query.exec();
+		const site = getSite(req)._id.toString();
+		const categories = await getCategories(site, showHiddenProducts);
 
-		const mappedResult = result.map((category) =>
+		if (categories.isError) {
+			return res.sendStatus(500);
+		}
+
+		const mappedResult = categories.value?.map((category) =>
 			mapCategoryToDTO(
 				category as unknown as WithId<Category> & { items: Product[] }
 			)
 		);
-		return res.status(200).json(mappedResult);
+		return res.status(200).json(mappedResult ?? []);
 	} catch (_: unknown) {
 		res.sendStatus(500);
 	}
 });
 
 router.get('/:category_id', async (req, res) => {
-	let showHiddenProducts = Boolean(req.query.showHiddenProducts ?? false);
-
-	if (showHiddenProducts && !checkAuth(req)) {
-		showHiddenProducts = false;
-	}
-
 	try {
-		const query = CategoryModel.findOne({ _id: req.params.category_id }).select(
-			['_id', 'name', 'description', 'items']
+		let showHiddenProducts = Boolean(req.query.showHiddenProducts ?? false);
+
+		if (showHiddenProducts && !checkAuth(req)) {
+			showHiddenProducts = false;
+		}
+		const site = getSite(req)._id.toString();
+		const category = await getCategory(
+			site,
+			req.params.category_id,
+			showHiddenProducts
 		);
 
-		if (!showHiddenProducts) {
-			query.populate({ path: 'items', match: { hidden: false } });
-		} else {
-			query.populate('items');
+		if (category.isError) {
+			return res.sendStatus(500);
 		}
 
-		const result = await query.exec();
-
-		if (!result) {
+		if (!category.value) {
 			return res.sendStatus(404);
 		}
 
 		res
 			.status(200)
-			.json(
-				mapCategoryToDTO(
-					result as unknown as WithId<Category> & { items: Product[] }
-				)
-			);
+			.json(mapCategoryToDTO(category as unknown as WithId<PopulatedCategory>));
 	} catch (_) {
 		res.sendStatus(500);
 	}
 });
 
 router.delete('/:category_id', checkTokenMiddleware, async (req, res) => {
-	const categoryId = req.params.category_id;
+	try {
+		const categoryId = req.params.category_id;
+		const site = getSite(req)._id.toString();
 
-	if (!categoryId) {
-		return res.sendStatus(400);
+		if (!categoryId) {
+			return res.sendStatus(400);
+		}
+
+		const category = await deleteCategory(site, categoryId);
+
+		if (category.isError) {
+			return res.sendStatus(500);
+		}
+
+		res.sendStatus(200);
+	} catch (_) {
+		res.sendStatus(500);
 	}
-
-	const category = await CategoryModel.findOneAndDelete({
-		_id: req.params.category_id,
-	});
-
-	if (!category) {
-		return res.sendStatus(404);
-	}
-
-	res.sendStatus(200);
 });
 
 router.put(
@@ -109,26 +102,26 @@ router.put(
 	checkTokenMiddleware,
 	checkNoEmptyBody,
 	async (req, res) => {
-		const name = req.body.name;
-		const description = req.body.description;
-		const items = req.body.items ?? [];
-
-		if (name === undefined || description === undefined) {
-			return res.sendStatus(400);
-		}
-
 		try {
-			await CategoryModel.findOneAndUpdate(
-				{ _id: req.params.category_id },
-				{
-					name,
-					description,
-					items,
-				},
-				{ new: true }
-			);
+			const categoryId = req.params.category_id;
+			const name = req.body.name as string;
+			const description = req.body.description as string;
+			const items: string[] = req.body.items ?? [];
 
-			void updateProducts(req.params.category_id, items);
+			const site = getSite(req)._id.toString();
+
+			if (name === undefined || description === undefined) {
+				return res.sendStatus(400);
+			}
+
+			await updateCategory(site, {
+				_id: categoryId,
+				name,
+				description,
+				items,
+			});
+
+			void updateCategories(site, categoryId, items);
 
 			res.sendStatus(201);
 		} catch (_) {
@@ -138,22 +131,28 @@ router.put(
 );
 
 router.post('/', checkTokenMiddleware, checkNoEmptyBody, async (req, res) => {
-	const name = req.body.name;
-	const description = req.body.description;
-	const items: Array<string> = req.body.items ?? [];
-
-	if (name === undefined || description === undefined) {
-		return res.sendStatus(400);
-	}
-
 	try {
-		const category = await CategoryModel.create({
+		const name = req.body.name;
+		const description = req.body.description;
+		const items: Array<string> = req.body.items ?? [];
+
+		const site = getSite(req)._id.toString();
+
+		if (name === undefined || description === undefined) {
+			return res.sendStatus(400);
+		}
+
+		const category = await createCategory(site, {
 			name,
 			description,
 			items,
 		});
 
-		void updateProducts(category._id.toString(), items);
+		if (category.isError || !category.value) {
+			return res.sendStatus(500);
+		}
+
+		void updateCategories(site, category.value, items);
 
 		res.sendStatus(201);
 	} catch (_) {
@@ -162,24 +161,3 @@ router.post('/', checkTokenMiddleware, checkNoEmptyBody, async (req, res) => {
 });
 
 export default router;
-
-const updateProducts = async (categoryId: string, items: string[]) => {
-	await ProductModel.updateMany(
-		{
-			_id: { $nin: items },
-		},
-		{ $pull: { categories: categoryId } },
-		{ new: true }
-	);
-
-	await ProductModel.updateMany(
-		{
-			_id: { $in: items },
-		},
-		{
-			$addToSet: {
-				categories: categoryId,
-			},
-		}
-	);
-};

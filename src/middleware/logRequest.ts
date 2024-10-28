@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { getLogger } from '../utils';
+import { getLogger } from '../shared/common/logger';
 
 const logger = getLogger();
 

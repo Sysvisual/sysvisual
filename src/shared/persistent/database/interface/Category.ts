@@ -1,9 +1,16 @@
-import { ProductDTO } from './Product';
+import { Product, ProductDTO } from './Product';
 
 interface Category {
 	name: string;
 	description: string;
 	items: Array<string>;
+	site: string;
+}
+
+interface PopulatedCategory {
+	name: string;
+	description: string;
+	items: Array<Product>;
 }
 
 interface CategoryDTO {
@@ -14,4 +21,4 @@ interface CategoryDTO {
 	amountItems: number;
 }
 
-export { Category, CategoryDTO };
+export { Category, PopulatedCategory, CategoryDTO };
