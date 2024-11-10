@@ -5,13 +5,18 @@ const cors = (req: Request, res: Response, next: NextFunction) => {
 		(process.env.ALLOWED_HOSTS as string) ?? ''
 	).split(',');
 
+	const remoteHost = (req.headers.origin ?? req.headers.referer)?.replace(
+		/\/$/,
+		''
+	);
+
 	if (
-		req.headers.origin !== undefined &&
-		whitelistedOrigins.indexOf(req.headers.origin) !== -1
+		remoteHost !== undefined &&
+		whitelistedOrigins.indexOf(remoteHost) !== -1
 	) {
-		res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-		req.headers['X-Domain'] = getDomain(req.headers.origin);
-		req.headers['X-Host'] = req.headers.host;
+		res.setHeader('Access-Control-Allow-Origin', remoteHost);
+		req.headers['X-Domain'] = getDomain(remoteHost);
+		req.headers['X-Host'] = remoteHost;
 	}
 
 	res.setHeader(
