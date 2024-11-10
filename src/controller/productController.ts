@@ -1,49 +1,42 @@
-import { Router, Request } from 'express';
-import ProductModel from '../models/productModel';
-import productModel from '../models/productModel';
+import { Router } from 'express';
 import { checkTokenMiddleware } from '../middleware/checkToken';
-import { mapProductToDTO } from '../utils/objectMapper';
+import { mapProductToDTO, WithId } from '../shared/persistent/objectMapper';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
-import fs from 'fs';
-import CategoryModel from '../models/categoryModel';
-import { verifyJWT } from '../auth/jwt';
-import { deleteImages } from '../utils/fileHandler';
-import { getLogger } from '../utils';
+import { checkAuth } from '../shared/auth/jwt';
+import { getLogger } from '../shared/common/logger';
+import { PopulatedProduct } from '../shared/persistent/database/interface/Product';
+import {
+	createProduct,
+	deleteProduct,
+	getProducts,
+	getProduct,
+	updateProduct,
+} from '../shared/persistent/database/repository/ProductRepository';
+import { getSite } from '../shared/common/requestUtils';
 
 const router = Router();
 const logger = getLogger();
 
-const checkAuth = (req: Request): boolean => {
-	const token = req.cookies['token'];
-
-	return !(undefined === token || !verifyJWT(token));
-};
-
 router.get('/', async (req, res) => {
-	let showHidden = Boolean(req.query.showHidden ?? false);
-
-	if (showHidden && !checkAuth(req)) {
-		showHidden = false;
-	}
-
 	try {
-		const dbResult = await ProductModel.find()
-			.select([
-				'_id',
-				'title',
-				'description',
-				'price',
-				'hidden',
-				'images',
-				'categories',
-			])
-			.exec();
+		let showHidden = Boolean(req.query.showHidden ?? false);
+		const site = getSite(req)._id.toString();
 
-		const result = dbResult
-			.filter((p) => (showHidden ? true : !p.hidden))
-			.map((p) => mapProductToDTO(p));
+		if (showHidden && !checkAuth(req)) {
+			showHidden = false;
+		}
 
-		return res.status(200).json(result);
+		const products = await getProducts(site, showHidden);
+
+		if (products.isError) {
+			return res.sendStatus(500);
+		}
+
+		const result = products.value?.map((p) =>
+			mapProductToDTO(p as unknown as WithId<PopulatedProduct>)
+		);
+
+		return res.status(200).json(result ?? []);
 	} catch (_: unknown) {
 		res.sendStatus(500);
 	}
@@ -51,29 +44,28 @@ router.get('/', async (req, res) => {
 
 router.get('/:product_id', async (req, res) => {
 	const showHidden = Boolean(req.query.showHidden ?? false);
+	const site = getSite(req)._id.toString();
 
 	if (showHidden && !checkAuth(req)) {
 		res.sendStatus(404);
 	}
 
 	try {
-		const result = await ProductModel.findOne({ _id: req.params.product_id })
-			.select([
-				'_id',
-				'title',
-				'description',
-				'price',
-				'hidden',
-				'images',
-				'categories',
-			])
-			.exec();
+		const result = await getProduct(site, req.params.product_id, showHidden);
 
-		if (!result || (!showHidden && result.hidden)) {
+		if (result.isError) {
+			return res.sendStatus(500);
+		}
+
+		if (!result.value) {
 			return res.sendStatus(404);
 		}
 
-		return res.status(200).json(mapProductToDTO(result));
+		return res
+			.status(200)
+			.json(
+				mapProductToDTO(result.value as unknown as WithId<PopulatedProduct>)
+			);
 	} catch (_) {
 		res.sendStatus(500);
 	}
@@ -81,49 +73,22 @@ router.get('/:product_id', async (req, res) => {
 
 router.delete('/:product_id', checkTokenMiddleware, async (req, res) => {
 	const productId = req.params.product_id;
+	const site = getSite(req)._id.toString();
 
 	if (!productId) {
 		res.sendStatus(400);
 	}
 
-	const product = await ProductModel.findOneAndDelete({ _id: productId });
+	const result = await deleteProduct(site, productId);
 
-	if (!product) {
+	if (result.isError) {
+		return res.sendStatus(500);
+	}
+
+	if (!result.value) {
 		return res.sendStatus(404);
 	}
 
-	const dirSet = new Set();
-
-	for (const image of product.images) {
-		dirSet.add(image.split(/\//)[0]);
-	}
-
-	if (product.images.length > 0) {
-		try {
-			for (const dir of dirSet) {
-				fs.rmSync(`${process.env.FILE_UPLOAD_DEST}/${dir}`, {
-					force: true,
-					recursive: true,
-				});
-			}
-		} catch (_) {
-			res.sendStatus(500);
-		}
-	}
-
-	if (product.categories.length > 0) {
-		await CategoryModel.updateMany(
-			{},
-			{
-				$pull: {
-					items: {
-						$in: product._id.toString(),
-					},
-				},
-			},
-			{ new: true }
-		);
-	}
 	res.sendStatus(200);
 });
 
@@ -138,37 +103,35 @@ router.put(
 		const price = req.body.price;
 		const images = req.body.images ?? [];
 		const hidden = req.body.hidden;
+		const site = getSite(req)._id.toString();
 
 		if (
 			productId === undefined ||
 			title === undefined ||
 			description === undefined ||
 			price === undefined ||
-			hidden === undefined
+			hidden === undefined ||
+			site === undefined
 		) {
 			return res.sendStatus(400);
 		}
 
 		try {
-			const oldProduct = await productModel.findOneAndUpdate(
-				{ _id: productId },
-				{
-					title,
-					description,
-					hidden,
-					images,
-					price: (price * 100).toFixed(2),
-				}
-			);
-
-			if (!oldProduct) {
-				return res.sendStatus(404);
+			const result = await updateProduct(site, {
+				_id: productId,
+				title,
+				description,
+				price,
+				images,
+				hidden,
+			});
+			if (result.isError) {
+				return res.sendStatus(500);
 			}
 
-			const removedImages = oldProduct.images.filter(
-				(img) => !images.includes(img)
-			);
-			await deleteImages(removedImages);
+			if (!result.value) {
+				res.sendStatus(404);
+			}
 
 			res.sendStatus(200);
 		} catch (error) {
@@ -179,28 +142,32 @@ router.put(
 );
 
 router.post('/', checkTokenMiddleware, checkNoEmptyBody, async (req, res) => {
-	const title = req.body.title;
-	const description = req.body.description;
-	const price = req.body.price;
-	const hidden = req.body.hidden;
-	const images = req.body.images ?? [];
-
-	if (
-		title === undefined ||
-		description === undefined ||
-		price === undefined ||
-		hidden === undefined
-	) {
-		return res.sendStatus(400);
-	}
-
 	try {
-		await productModel.create({
+		const title = req.body.title;
+		const description = req.body.description;
+		const price = req.body.price;
+		const hidden = req.body.hidden;
+		const images = req.body.images ?? [];
+		const site = getSite(req)._id.toString();
+
+		if (
+			title === undefined ||
+			description === undefined ||
+			price === undefined ||
+			hidden === undefined ||
+			site === undefined
+		) {
+			return res.sendStatus(400);
+		}
+
+		await createProduct({
 			title,
 			description,
-			hidden,
-			price: (price * 100).toFixed(2),
+			price,
 			images,
+			hidden,
+			categories: [],
+			site: site.toString(),
 		});
 
 		res.sendStatus(201);

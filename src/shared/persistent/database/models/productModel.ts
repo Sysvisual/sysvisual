@@ -29,6 +29,11 @@ const productModel = new mongoose.Schema<Product>({
 		type: Types.Boolean,
 		default: false,
 	},
+	site: {
+		type: Types.String,
+		ref: 'sites',
+		required: true,
+	},
 });
 
 productModel.pre('save', function (next) {

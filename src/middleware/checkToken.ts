@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { verifyJWT } from '../auth/jwt';
+import { getJWTPayload, verifyJWT } from '../shared/auth/jwt';
 
 export const checkTokenMiddleware = (
 	req: Request,
@@ -12,5 +12,6 @@ export const checkTokenMiddleware = (
 		return res.sendStatus(401);
 	}
 
+	req.headers['X-JWT-Payload'] = getJWTPayload(token) as unknown as string;
 	next();
 };

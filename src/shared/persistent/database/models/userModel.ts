@@ -8,10 +8,20 @@ const userModel = new Schema<User>({
 	username: {
 		type: Types.String,
 		required: true,
+		unique: true,
 	},
 	password: {
 		type: Types.String,
 		required: true,
+	},
+	createdAt: {
+		type: Types.Number,
+		required: true,
+	},
+	contactDetails: {
+		type: Types.String,
+		required: true,
+		ref: 'contactDetails',
 	},
 });
 
