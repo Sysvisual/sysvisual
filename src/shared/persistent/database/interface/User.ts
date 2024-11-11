@@ -6,6 +6,7 @@ interface User {
 	password: string;
 	contactDetails: string;
 	createdAt: number;
+	site: string;
 }
 
 interface PopulatedUser {

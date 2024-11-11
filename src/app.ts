@@ -1,6 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 import defaultController from './controller/defaultController';
 import { UserModel } from './shared/persistent/database/models';
@@ -37,7 +37,11 @@ export default async function (): Promise<express.Express> {
 
 		logger.info('Successfully connected to the database.');
 	} catch (error) {
-		logger.error('Not successfully connected to the database.', { error });
+		logger.error(
+			'Not successfully connected to the database. Stopping server!',
+			{ error }
+		);
+		process.exit(1);
 	}
 
 	app.use(express.json());
@@ -75,36 +79,43 @@ async function createDefaultUsers(): Promise<void> {
 			environment === 'LOCAL' ? 'admin' : generateAlphanumericStr(12);
 		const username = environment === 'LOCAL' ? 'admin' : 'lasermatti';
 
-		const contactDetails = await new ContactDetailsModel({
+		const contactDetails = await ContactDetailsModel.create({
 			email: 'admin@sysvisual.de',
 			firstname: 'Administrator',
 			surname: 'Sysvisual',
 			addresses: [],
-		}).save();
+		});
 
-		const user = await new UserModel({
+		const userId = Types.ObjectId.createFromTime(new Date().getTime() / 1000);
+		const siteId = Types.ObjectId.createFromTime(new Date().getTime() / 1000);
+
+		const user = await UserModel.create({
+			_id: userId,
 			username,
 			password,
 			contactDetails: contactDetails._id,
 			createdAt: Date.now(),
-		}).save();
+			site: siteId,
+		});
 
 		if (!user) {
 			logger.error('Error occurred while creating default users.');
 			return;
 		}
 
-		const site = await new SiteModel({
+		const site = await SiteModel.create({
+			_id: siteId,
 			name: environment === 'LOCAL' ? 'Localhost - Test' : 'Sysvisual Admin',
 			domains:
 				environment === 'LOCAL'
 					? ['localhost:5174', 'localhost:5173']
 					: ['admin.sysvisual.de'],
-			owner: user._id,
-		}).save();
+			owner: userId,
+		});
 
 		if (!site) {
 			logger.error('Error occurred while creating default site.');
+			return;
 		}
 
 		logger.info(

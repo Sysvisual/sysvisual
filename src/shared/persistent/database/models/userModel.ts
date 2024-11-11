@@ -8,7 +8,6 @@ const userModel = new Schema<User>({
 	username: {
 		type: Types.String,
 		required: true,
-		unique: true,
 	},
 	password: {
 		type: Types.String,
@@ -22,6 +21,10 @@ const userModel = new Schema<User>({
 		type: Types.String,
 		required: true,
 		ref: 'contactDetails',
+	},
+	site: {
+		type: Types.String,
+		required: true,
 	},
 });
 

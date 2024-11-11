@@ -76,6 +76,7 @@ const createUser = async (
 			password: user.password,
 			contactDetails: user.contactDetails,
 			createdAt: new Date().getTime(),
+			site: user.site,
 		});
 
 		return new ErrorResult(userDocument._id.toString(), null);

@@ -74,6 +74,7 @@ router.post('/', checkTokenMiddleware, async (req, res) => {
 	try {
 		const username = req.body.username;
 		const password = req.body.password;
+		const site = req.body.site;
 		const contactDetails = req.body.contactDetails;
 
 		if (!username || !password || !contactDetails) {
@@ -115,6 +116,7 @@ router.post('/', checkTokenMiddleware, async (req, res) => {
 			username,
 			password,
 			contactDetails: createdContactDetails.value,
+			site,
 		});
 
 		res.status(201).json(user);

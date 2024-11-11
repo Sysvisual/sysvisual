@@ -20,7 +20,7 @@ const generateJWT = async (user: WithId<User>) => {
 			algorithm: 'HS512',
 			expiresIn: Math.floor(Date.now() / 1000) + 60 * 60 * 2, // 2 hours
 			issuer: 'sysvisual',
-			audience: user.username,
+			audience: user.username ?? '',
 		}
 	);
 };
