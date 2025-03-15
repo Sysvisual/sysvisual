@@ -46,8 +46,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/Sysvisual/sysvisual:latest
-            ghcr.io/Sysvisual/sysvisual:${{ github.sha }}
+            ghcr.io/sysvisual/sysvisual:latest
+            ghcr.io/sysvisual/sysvisual:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
