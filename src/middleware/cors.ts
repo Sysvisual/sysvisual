@@ -17,6 +17,8 @@ const cors = (req: Request, res: Response, next: NextFunction) => {
 		res.setHeader('Access-Control-Allow-Origin', remoteHost);
 		req.headers['X-Domain'] = getDomain(remoteHost);
 		req.headers['X-Host'] = remoteHost;
+	} else {
+		return res.end();
 	}
 
 	res.setHeader(
