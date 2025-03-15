@@ -10,30 +10,34 @@ import { getLogger } from './shared/common/logger';
 import ContactDetailsModel from './shared/persistent/database/models/contactDetailsModel';
 import SiteModel from './shared/persistent/database/models/siteModel';
 
+import promBundle from 'express-prom-bundle';
+import { Config } from './shared/common/config/config';
+import { Postgres } from './shared/persistent/database/postgres';
+
 const logger = getLogger();
 
 export default async function (): Promise<express.Express> {
 	const app = express();
+	const cfg = Config.instance.config;
 
 	try {
-		const mongoUrl = `mongodb://${process.env.DB_HOST ?? 'localhost'}:${
-			process.env.DB_PORT ?? '27017'
-		}/${process.env.DB_NAME ?? 'sysvisual'}`;
+		const mongoUrl = `mongodb://${cfg.mongodb.host}:${
+			cfg.mongodb.port
+		}/${cfg.mongodb.name}`;
 
 		mongoose.set('strictQuery', false);
 		await mongoose.connect(mongoUrl, {
 			connectTimeoutMS: 5000,
 			auth: {
-				username: process.env.DB_USERNAME,
-				password: Buffer.from(
-					process.env.DB_PASSWORD ?? '',
-					'base64'
-				).toString(),
+				username: cfg.mongodb.username,
+				password: cfg.mongodb.password,
 			},
 			authSource: 'admin',
 		});
 
 		await createDefaultUsers();
+
+		Postgres.init();
 
 		logger.info('Successfully connected to the database.');
 	} catch (error) {
@@ -44,9 +48,24 @@ export default async function (): Promise<express.Express> {
 		process.exit(1);
 	}
 
+	app.use(
+		promBundle({
+			includeMethod: true,
+			includePath: true,
+			includeStatusCode: true,
+			includeUp: true,
+			customLabels: {
+				project_name: 'sysvisual',
+				service: 'sysvisual-backend',
+			},
+			promClient: {
+				collectDefaultMetrics: {},
+			},
+		})
+	);
+	app.use(logRequest);
 	app.use(express.json());
 	app.use(cookieParser());
-	app.use(logRequest);
 	app.use(cors);
 	app.use('/', defaultController);
 
@@ -73,7 +92,7 @@ async function createDefaultUsers(): Promise<void> {
 
 	const userCount = await UserModel.count().exec();
 
-	const environment = process.env.ENVIRONMENT;
+	const environment = Config.instance.config.environment;
 	if (userCount <= 0) {
 		const password =
 			environment === 'LOCAL' ? 'admin' : generateAlphanumericStr(12);
@@ -87,7 +106,9 @@ async function createDefaultUsers(): Promise<void> {
 		});
 
 		const userId = Types.ObjectId.createFromTime(new Date().getTime() / 1000);
-		const siteId = Types.ObjectId.createFromTime(new Date().getTime() / 1000);
+		const siteId = Types.ObjectId.createFromTime(
+			(new Date().getTime() + 1) / 1000
+		);
 
 		const user = await UserModel.create({
 			_id: userId,

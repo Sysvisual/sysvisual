@@ -12,7 +12,7 @@ import {
 	getProduct,
 	updateProduct,
 } from '../shared/persistent/database/repository/ProductRepository';
-import { getSite } from '../shared/common/requestUtils';
+import { getSite } from '../shared/common/helpers/requestUtils';
 
 const router = Router();
 const logger = getLogger();

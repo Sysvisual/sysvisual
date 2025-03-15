@@ -1,5 +1,5 @@
 import { Query } from 'mongoose';
-import { ErrorResult, resultFromError } from '../../../common/result';
+import { ErrorResult, resultFromError } from '../../../common/helpers/result';
 import { PopulatedSite } from '../interface/Site';
 import { SiteModel } from '../models';
 

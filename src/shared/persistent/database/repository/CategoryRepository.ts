@@ -1,5 +1,5 @@
 import { Category, PopulatedCategory } from '../interface/Category';
-import { ErrorResult, resultFromError } from '../../../common/result';
+import { ErrorResult, resultFromError } from '../../../common/helpers/result';
 import { CategoryModel } from '../models';
 import { Query } from 'mongoose';
 import { WithId } from '../../objectMapper';

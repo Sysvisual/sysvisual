@@ -1,10 +1,15 @@
 import { CategoryModel, ProductModel } from '../models';
-import { ErrorResult, resultFromError, Result } from '../../../common/result';
+import {
+	ErrorResult,
+	resultFromError,
+	Result,
+} from '../../../common/helpers/result';
 import { PopulatedProduct, Product } from '../interface/Product';
 import { Query } from 'mongoose';
 import fs from 'fs';
 import { WithId } from '../../objectMapper';
 import { deleteImages as deleteImagesFS } from '../../fileHandler';
+import { Config } from '../../../common/config/config';
 
 const getProduct = async (
 	siteId: string,
@@ -108,7 +113,7 @@ const deleteProduct = async (
 
 		if (product.images.length > 0) {
 			for (const dir of dirSet) {
-				fs.rmSync(`${process.env.FILE_UPLOAD_DEST}/${dir}`, {
+				fs.rmSync(`${Config.instance.config.fileUploadDest}/${dir}`, {
 					force: true,
 					recursive: true,
 				});

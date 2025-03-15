@@ -3,7 +3,7 @@ import { getLogger } from '../shared/common/logger';
 import { checkTokenMiddleware } from '../middleware/checkToken';
 import { mapSiteToDTO, WithId } from '../shared/persistent/objectMapper';
 import { PopulatedSite } from '../shared/persistent/database/interface/Site';
-import { getJWTPayload } from '../shared/common/requestUtils';
+import { getJWTPayload } from '../shared/common/helpers/requestUtils';
 import { getSites } from '../shared/persistent/database/repository/SiteRepository';
 
 const router = Router();

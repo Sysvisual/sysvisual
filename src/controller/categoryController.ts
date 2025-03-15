@@ -16,7 +16,7 @@ import {
 	updateCategory,
 } from '../shared/persistent/database/repository/CategoryRepository';
 import { updateCategories } from '../shared/persistent/database/repository/ProductRepository';
-import { getSite } from '../shared/common/requestUtils';
+import { getSite } from '../shared/common/helpers/requestUtils';
 
 const router = Router();
 

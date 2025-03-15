@@ -3,11 +3,9 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { CookieOptions, Response, Request } from 'express';
 import { PopulatedSite } from '../persistent/database/interface/Site';
 import { WithId } from '../persistent/objectMapper';
+import { Config } from '../common/config/config';
 
 const generateJWT = async (user: WithId<User>) => {
-	if (!process.env.JWT_SECRET) {
-		throw new Error('Cannot generate JWT: Missing secret in .env!');
-	}
 	return jwt.sign(
 		{
 			user: {
@@ -15,7 +13,7 @@ const generateJWT = async (user: WithId<User>) => {
 				id: user._id,
 			},
 		},
-		process.env.JWT_SECRET,
+		Config.instance.config.jwtSecret,
 		{
 			algorithm: 'HS512',
 			expiresIn: Math.floor(Date.now() / 1000) + 60 * 60 * 2, // 2 hours
@@ -29,11 +27,9 @@ const verifyJWT = (token?: string): boolean => {
 	if (!token) {
 		return false;
 	}
-	if (!process.env.JWT_SECRET) {
-		throw new Error('Cannot verify JWT: Missing secret in .env!');
-	}
+
 	try {
-		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const decoded = jwt.verify(token, Config.instance.config.jwtSecret);
 		return !!decoded;
 	} catch (_) {
 		return false;

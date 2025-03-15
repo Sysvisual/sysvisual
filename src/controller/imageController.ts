@@ -2,12 +2,13 @@ import { Router } from 'express';
 import { checkTokenMiddleware } from '../middleware/checkToken';
 import fs from 'fs';
 import fileUpload from '../middleware/fileUpload';
-import { getSite } from '../shared/common/requestUtils';
+import { getSite } from '../shared/common/helpers/requestUtils';
 import { deleteImages } from '../shared/persistent/database/repository/ProductRepository';
+import { Config } from '../shared/common/config/config';
 
 const router = Router();
 
-const IMAGE_BASE_PATH = process.env.FILE_UPLOAD_DEST ?? '/upload';
+const IMAGE_BASE_PATH = Config.instance.config.fileUploadDest;
 
 router.get('/:imageName', (req, res) => {
 	const imageName = req.params.imageName;
