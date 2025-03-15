@@ -5,7 +5,6 @@ on:
       - 'master'
 
 permissions:
-  packages: write
   contents: read
 
 jobs:
@@ -27,6 +26,8 @@ jobs:
 
   build-and-push-image:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     needs:
       - run-tests
     steps:
@@ -44,7 +45,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           push: true
           tags: |
             ghcr.io/veenixdev/sysvisual:latest
