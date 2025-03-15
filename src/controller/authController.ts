@@ -5,7 +5,7 @@ import { Router } from 'express';
 import { WithId } from '../shared/persistent/objectMapper';
 import { getUserByName } from '../shared/persistent/database/repository/UserRepository';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
-import { getSite } from '../shared/common/requestUtils';
+import { getSite } from '../shared/common/helpers/requestUtils';
 
 const router = Router();
 

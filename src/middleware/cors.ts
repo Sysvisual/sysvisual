@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
+import { Config } from '../shared/common/config/config';
 
 const cors = (req: Request, res: Response, next: NextFunction) => {
-	const whitelistedOrigins = (
-		(process.env.ALLOWED_HOSTS as string) ?? ''
-	).split(',');
+	// TODO: Move allowed Hosts into database
+	const whitelistedOrigins = Config.instance.config.allowedHosts;
 
 	const remoteHost = (req.headers.origin ?? req.headers.referer)?.replace(
 		/\/$/,
@@ -17,6 +17,8 @@ const cors = (req: Request, res: Response, next: NextFunction) => {
 		res.setHeader('Access-Control-Allow-Origin', remoteHost);
 		req.headers['X-Domain'] = getDomain(remoteHost);
 		req.headers['X-Host'] = remoteHost;
+	} else {
+		return res.end();
 	}
 
 	res.setHeader(

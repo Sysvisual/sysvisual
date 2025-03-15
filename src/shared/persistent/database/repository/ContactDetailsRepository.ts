@@ -1,5 +1,9 @@
 import { ContactDetails } from '../interface/ContactDetails';
-import { ErrorResult, Result, resultFromError } from '../../../common/result';
+import {
+	ErrorResult,
+	Result,
+	resultFromError,
+} from '../../../common/helpers/result';
 import { ContactDetailsModel } from '../models';
 
 const createContactDetails = async (

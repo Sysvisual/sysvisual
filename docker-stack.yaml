@@ -1,0 +1,133 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.1
+    restart: always
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=imveenix@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      # The HTTP Port
+      - "80:80"
+      # The Backend Port
+      - "8080:8080"
+      # The Grafana Port
+      - "3000:3000"
+      # The HTTPS Port
+      - "443:443"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  sysvisual:
+    image: ghcr.io/sysvisual/sysvisual:${GIT_COMMIT_HASH:-latest}
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sysvisual.rule=Host(`api.sysvisual.de`)"
+      - "traefik.http.routers.sysvisual.entrypoints=websecure"
+      - "traefik.http.routers.sysvisual.tls.certresolver=myresolver"
+    volumes:
+      - fileupload:/upload
+    secrets:
+      - postgres-password
+      - mongodb-password
+      - jwt-secret
+    deploy:
+      update_config:
+        order: start-first
+    depends_on:
+      - postgres
+      - mongodb
+
+  lasermatti:
+    image: veenixdev/lasermatti
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lasermatti.rule=Host(`veenix.de`)"
+      - "traefik.http.routers.lasermatti.entrypoints=websecure"
+      - "traefik.http.routers.lasermatti.tls.certresolver=myresolver"
+
+  admin-board:
+    image: veenixdev/admin-board
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.admin-board.rule=Host(`sysvisual.de`)"
+      - "traefik.http.routers.admin-board.entrypoints=websecure"
+      - "traefik.http.routers.admin-board.tls.certresolver=myresolver"
+
+  postgres:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+      POSTGRES_DB: sysvisual
+      POSTGRES_USER: sysvisual
+    secrets:
+      - postgres-password
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongodb-password
+      MONGO_INITDB_DATABASE: sysvisual
+    secrets:
+      - mongodb-password
+
+  loki:
+    image: grafana/loki
+    restart: always
+    volumes:
+      - loki-data:/var/log
+
+  grafana:
+    image: grafana/grafana
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.admin-board.rule=Host(`monitoring.sysvisual.de`)"
+      - "traefik.http.routers.admin-board.entrypoints=websecure"
+      - "traefik.http.routers.admin-board.tls.certresolver=myresolver"
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  prometheus:
+    image: prom/prometheus
+    restart: always
+    volumes:
+      - prometheus-data:/etc/prometheus
+
+volumes:
+  mongodb-data:
+  postgres-data:
+  letsencrypt:
+  fileupload:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+
+secrets:
+  postgres-password:
+    external: true
+  mongodb-password:
+    external: true
+  jwt-secret:
+    external: true

@@ -1,5 +1,3 @@
-import { Error } from 'mongoose';
-
 class Result<V, E> {
 	readonly value: V | null;
 	readonly error: E | null;

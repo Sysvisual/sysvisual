@@ -1,4 +1,4 @@
-import { ErrorResult, resultFromError } from '../../../common/result';
+import { ErrorResult, resultFromError } from '../../../common/helpers/result';
 import { PopulatedUser, User } from '../interface/User';
 import { UserModel } from '../models';
 import { Query } from 'mongoose';

@@ -11,7 +11,7 @@ import {
 } from '../shared/persistent/database/repository/UserRepository';
 import { createContactDetails } from '../shared/persistent/database/repository/ContactDetailsRepository';
 import { createAddress } from '../shared/persistent/database/repository/AddressRepository';
-import { getSite } from '../shared/common/requestUtils';
+import { getSite } from '../shared/common/helpers/requestUtils';
 
 const router = Router();
 
