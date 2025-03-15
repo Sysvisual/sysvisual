@@ -115,6 +115,11 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
+
 secrets:
   postgres-password:
+    external: true
+  mongodb-password:
+    external: true
+  jwt-secret:
     external: true
