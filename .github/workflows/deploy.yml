@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Use Node.js 22.8.0
         uses: actions/setup-node@v4
         with:
@@ -29,6 +31,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -51,6 +55,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: create env file
         run: |
           echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
