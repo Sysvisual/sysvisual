@@ -44,6 +44,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           push: true
           tags: |
             ghcr.io/veenixdev/sysvisual:latest
