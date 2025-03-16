@@ -2,6 +2,8 @@
 
 A content management system for creating shops and other web-based applications.
 
+THIS PROJECT HAS NO LICENSE FILE. ALL RIGHTS ARE RESERVED. USING, SHARING, MODIFYING, DISTRIBUTING OR ANY OTHER USE OF THIS PROJECT IS NOT ALLOWED!
+
 ## TODO
 
 - [ ] Add logger
