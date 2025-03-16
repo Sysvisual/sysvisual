@@ -26,7 +26,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   sysvisual:
-    image: ghcr.io/veenixdev/sysvisual:${GIT_COMMIT_HASH:-latest}
+    image: ghcr.io/sysvisual/sysvisual:${GIT_COMMIT_HASH:-latest}
     restart: always
     labels:
       - "traefik.enable=true"
