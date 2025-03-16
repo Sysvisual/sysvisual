@@ -35,6 +35,10 @@ services:
       - "traefik.http.routers.sysvisual.tls.certresolver=myresolver"
     volumes:
       - fileupload:/upload
+    secrets:
+      - postgres-password
+      - mongodb-password
+      - jwt-secret
     deploy:
       update_config:
         order: start-first
@@ -70,6 +74,8 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
       POSTGRES_DB: sysvisual
       POSTGRES_USER: sysvisual
+    secrets:
+      - postgres-password
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
@@ -83,6 +89,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongodb-password
       MONGO_INITDB_DATABASE: sysvisual
+    secrets:
+      - mongodb-password
 
   loki:
     image: grafana/loki
