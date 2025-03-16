@@ -37,7 +37,7 @@ jobs:
       - name: Log in to the image registry
         uses: docker/login-action@v3
         with:
-          registry: https://ghcr.io
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
@@ -48,7 +48,6 @@ jobs:
           tags: |
             ghcr.io/sysvisual/sysvisual:latest
             ghcr.io/sysvisual/sysvisual:${{ github.sha }}
-
   deploy:
     runs-on: ubuntu-latest
     needs:
