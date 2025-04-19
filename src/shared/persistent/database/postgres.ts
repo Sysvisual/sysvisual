@@ -1,8 +1,8 @@
 import knex from 'knex';
-import { getLogger } from '../../common/logger';
+import { Logger } from '../../common/logger';
 import { Config } from '../../common/config/config';
 
-const logger = getLogger();
+const logger = Logger.instance.getLogger();
 const cfg = Config.instance.config;
 
 class Postgres {

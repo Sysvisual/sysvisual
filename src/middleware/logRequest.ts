@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { getLogger } from '../shared/common/logger';
+import { Logger } from '../shared/common/logger';
 
-const logger = getLogger();
+const logger = Logger.instance.getLogger();
 
 export const logRequest = (req: Request, _: Response, next: NextFunction) => {
 	let bodyStr = undefined;

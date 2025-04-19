@@ -6,7 +6,7 @@ import defaultController from './controller/defaultController';
 import { UserModel } from './shared/persistent/database/models';
 import { logRequest } from './middleware/logRequest';
 import { cors } from './middleware/cors';
-import { getLogger } from './shared/common/logger';
+import { Logger } from './shared/common/logger';
 import ContactDetailsModel from './shared/persistent/database/models/contactDetailsModel';
 import SiteModel from './shared/persistent/database/models/siteModel';
 
@@ -14,7 +14,7 @@ import promBundle from 'express-prom-bundle';
 import { Config } from './shared/common/config/config';
 import { Postgres } from './shared/persistent/database/postgres';
 
-const logger = getLogger();
+const logger = Logger.instance.getLogger();
 
 export default async function (): Promise<express.Express> {
 	const app = express();

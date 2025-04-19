@@ -1,12 +1,12 @@
-import http from 'http';
-import app from './app';
-import { getLogger } from './shared/common/logger';
 import { Config } from './shared/common/config/config';
-
 // Has to load config before starting anything
 Config.instance.init();
 
-const logger = getLogger();
+import { Logger } from './shared/common/logger';
+import http from 'http';
+import app from './app';
+
+const logger = Logger.instance.getLogger();
 
 (async () => {
 	const SERVER_PORT: number = Number(Config.instance.config.port ?? '8080');

@@ -3,7 +3,7 @@ import { checkTokenMiddleware } from '../middleware/checkToken';
 import { mapProductToDTO, WithId } from '../shared/persistent/objectMapper';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import { checkAuth } from '../shared/auth/jwt';
-import { getLogger } from '../shared/common/logger';
+import { Logger } from '../shared/common/logger';
 import { PopulatedProduct } from '../shared/persistent/database/interface/Product';
 import {
 	createProduct,
@@ -15,7 +15,7 @@ import {
 import { getSite } from '../shared/common/helpers/requestUtils';
 
 const router = Router();
-const logger = getLogger();
+const logger = Logger.instance.getLogger();
 
 router.get('/', async (req, res) => {
 	try {

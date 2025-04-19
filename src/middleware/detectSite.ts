@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { SiteModel } from '../shared/persistent/database/models';
-import { getLogger } from '../shared/common/logger';
+import { Logger } from '../shared/common/logger';
 
-const logger = getLogger();
+const logger = Logger.instance.getLogger();
 
 export const detectSite = async (
 	req: Request,

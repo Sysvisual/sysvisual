@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getLogger } from '../shared/common/logger';
+import { Logger } from '../shared/common/logger';
 import { checkTokenMiddleware } from '../middleware/checkToken';
 import { mapSiteToDTO, WithId } from '../shared/persistent/objectMapper';
 import { PopulatedSite } from '../shared/persistent/database/interface/Site';
@@ -7,7 +7,7 @@ import { getJWTPayload } from '../shared/common/helpers/requestUtils';
 import { getSites } from '../shared/persistent/database/repository/SiteRepository';
 
 const router = Router();
-const logger = getLogger();
+const logger = Logger.instance.getLogger();
 
 router.get('/', checkTokenMiddleware, async (req, res) => {
 	try {
