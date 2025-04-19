@@ -104,6 +104,10 @@ class Config {
 			throw new Error(`Could not get filePath for required file: '${path}'.`);
 		}
 
+		if (!fs.existsSync(filePath)) {
+			throw new Error(`File does not exist: '${path}'.`);
+		}
+
 		const fileBuffer = fs.readFileSync(filePath);
 
 		if (!fileBuffer || fileBuffer.length <= 0) {
