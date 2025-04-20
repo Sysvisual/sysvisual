@@ -105,9 +105,9 @@ services:
     restart: always
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.admin-board.rule=Host(`monitoring.sysvisual.de`)"
-      - "traefik.http.routers.admin-board.entrypoints=websecure"
-      - "traefik.http.routers.admin-board.tls.certresolver=myresolver"
+      - "traefik.http.routers.grafanarule=Host(`monitoring.sysvisual.de`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=myresolver"
     volumes:
       - grafana-data:/var/lib/grafana
 
