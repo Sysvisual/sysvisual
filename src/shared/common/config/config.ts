@@ -105,7 +105,7 @@ class Config {
 		}
 
 		if (!fs.existsSync(filePath)) {
-			throw new Error(`File does not exist: '${path}'.`);
+			throw new Error(`File does not exist: '${filePath}'.`);
 		}
 
 		const fileBuffer = fs.readFileSync(filePath);
