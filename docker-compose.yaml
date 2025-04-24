@@ -1,38 +1,122 @@
-version: '3.1'
+version: '3.8'
 
 services:
-  mongo:
-    image: mongo
+  # Backend service (main application)
+  sysvisual:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
     ports:
-      - "127.0.0.1:27018:27017"
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - fileupload:/upload
+    environment:
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGODB_NAME: sysvisual
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: example
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: sysvisual
+      POSTGRES_NAME: sysvisual
+      POSTGRES_PASSWORD: example
+      ALLOWED_HOSTS: http://localhost:3000,http://localhost:3001,http://localhost:8080
+      PORT: 8080
+      FILE_UPLOAD_DEST: /upload
+      JWT_SECRET: local_development_jwt_secret
+      ENVIRONMENT: LOCAL
+      LOKI_HOST: http://loki
+      LOKI_PORT: 3100
+    depends_on:
+      - postgres
+      - mongodb
+
+  # Frontend services
+  lasermatti:
+    image: veenixdev/lasermatti
+    # For local development, you might want to build from source instead
+    # build:
+    #   context: ../web_new
+    #   dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "127.0.0.1:3000:5173"
+
+  admin-board:
+    image: veenixdev/admin-board
+    # For local development, you might want to build from source instead
+    # build:
+    #   context: ../web_admin
+    #   dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "127.0.0.1:3001:5173"
+
+  # Database services
+  postgres:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: sysvisual
+      POSTGRES_USER: sysvisual
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo
+    restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: sysvisual
-
-  backend:
-    build:
-      dockerfile: ./Dockerfile
     ports:
-      - "127.0.0.1:8080:8080"
-  
-  frontend:
-    build:
-      context: ../web_new
-      dockerfile: ../web_new/Dockerfile
-    ports:
-      - "127.0.0.1:3000:5173"
+      - "127.0.0.1:27017:27017"
     volumes:
-      - type: volume
-        source: product-images
-        target: /app/public/products
+      - mongodb-data:/data/db
 
-  frontent-admin:
-    build:
-      context: ../web_admin
-      dockerfile: ../web_admin/Dockerfile
+  # Monitoring services (optional for local development)
+  loki:
+    image: grafana/loki
+    restart: always
+    volumes:
+      - loki-data:/var/log
     ports:
-      - "127.0.0.1:3001:5173"
+      - "127.0.0.1:3100:3100"
+
+  grafana:
+    image: grafana/grafana
+    restart: always
+    ports:
+      - "127.0.0.1:3002:3000"  # Changed to 3002 to avoid conflict with lasermatti frontend
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - loki
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus
+    restart: always
+    volumes:
+      - prometheus-data:/etc/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
 
 volumes:
-  product-images:
+  mongodb-data:
+  postgres-data:
+  fileupload:
+  prometheus-data:
+  grafana-data:
+  loki-data:

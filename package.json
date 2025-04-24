@@ -15,7 +15,10 @@
     "start:prometheus": "docker run --name prometheus -d -p 9090:9090 -v ./prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus",
     "start:monitoring": "npm run start:grafana & npm run start:loki & npm run start:prometheus",
     "docker:build": "docker build -t veenixdev/sysvisual:latest .",
-    "eslint": "eslint"
+    "docker:start:local": "docker-compose up -d",
+    "docker:stop:local": "docker-compose down",
+    "eslint": "eslint",
+    "eslint:fix": "eslint --fix"
   },
   "author": "",
   "license": "ISC",
