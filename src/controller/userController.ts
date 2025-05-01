@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import { Logger } from '../shared/common/logger';
 import { checkTokenMiddleware } from '../middleware/checkToken';
-import { Address } from '../shared/persistent/database/interface/Address';
-import { mapUserToDTO, WithId } from '../shared/persistent/objectMapper';
-import { PopulatedUser } from '../shared/persistent/database/interface/User';
+import { Address } from '../persistence/database/interface/Address';
+import { mapUserToDTO, WithId } from '../persistence/objectMapper';
+import { PopulatedUser } from '../persistence/database/interface/User';
 import {
 	createUser,
 	getUser,
 	getUsers,
-} from '../shared/persistent/database/repository/UserRepository';
-import { createContactDetails } from '../shared/persistent/database/repository/ContactDetailsRepository';
-import { createAddress } from '../shared/persistent/database/repository/AddressRepository';
+} from '../persistence/database/repository/UserRepository';
+import { createContactDetails } from '../persistence/database/repository/ContactDetailsRepository';
+import { createAddress } from '../persistence/database/repository/AddressRepository';
 import { getSite } from '../shared/common/helpers/requestUtils';
 
 const router = Router();

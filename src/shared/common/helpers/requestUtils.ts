@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import { Site } from '../../persistent/database/interface/Site';
-import { WithId } from '../../persistent/objectMapper';
+import { Site } from '../../../persistence/database/interface/Site';
+import { WithId } from '../../../persistence/objectMapper';
 import { JwtPayload } from 'jsonwebtoken';
 
 const getSite = (request: Request): WithId<Site> => {

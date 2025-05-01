@@ -3,7 +3,7 @@ import {
 	ErrorResult,
 	Result,
 	resultFromError,
-} from '../../../common/helpers/result';
+} from '../../../shared/common/helpers/result';
 import { ContactDetailsModel } from '../models';
 
 const createContactDetails = async (

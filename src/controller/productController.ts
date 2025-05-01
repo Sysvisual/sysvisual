@@ -1,17 +1,17 @@
 import { Router } from 'express';
 import { checkTokenMiddleware } from '../middleware/checkToken';
-import { mapProductToDTO, WithId } from '../shared/persistent/objectMapper';
+import { mapProductToDTO, WithId } from '../persistence/objectMapper';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import { checkAuth } from '../shared/auth/jwt';
 import { Logger } from '../shared/common/logger';
-import { PopulatedProduct } from '../shared/persistent/database/interface/Product';
+import { PopulatedProduct } from '../persistence/database/interface/Product';
 import {
 	createProduct,
 	deleteProduct,
 	getProducts,
 	getProduct,
 	updateProduct,
-} from '../shared/persistent/database/repository/ProductRepository';
+} from '../persistence/database/repository/ProductRepository';
 import { getSite } from '../shared/common/helpers/requestUtils';
 
 const router = Router();

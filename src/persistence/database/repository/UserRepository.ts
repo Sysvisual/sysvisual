@@ -1,4 +1,7 @@
-import { ErrorResult, resultFromError } from '../../../common/helpers/result';
+import {
+	ErrorResult,
+	resultFromError,
+} from '../../../shared/common/helpers/result';
 import { PopulatedUser, User } from '../interface/User';
 import { UserModel } from '../models';
 import { Query } from 'mongoose';
@@ -43,7 +46,7 @@ const getUserByName = async (
 	}
 };
 
-const getUser = async (
+/*const getUser = async (
 	siteId: string,
 	userId: string
 ): Promise<ErrorResult<PopulatedUser | undefined>> => {
@@ -65,7 +68,7 @@ const getUser = async (
 	} catch (error) {
 		return resultFromError(error);
 	}
-};
+};*/
 
 const createUser = async (
 	user: Omit<User, 'createdAt'>
@@ -83,6 +86,10 @@ const createUser = async (
 	} catch (error) {
 		return resultFromError(error);
 	}
+};
+
+const getUser = async (filter: Partial<User>) => {
+	throw new Error('Not implemented');
 };
 
 const populateUser = (

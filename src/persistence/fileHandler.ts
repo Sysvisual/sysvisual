@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Config } from '../common/config/config';
+import { Config } from '../shared/common/config/config';
 
 const deleteImages = (imagePaths: string[]) => {
 	const IMAGE_BASE_PATH = Config.instance.config.fileUploadDest;

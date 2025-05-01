@@ -1,6 +1,6 @@
 import knex from 'knex';
-import { Logger } from '../../common/logger';
-import { Config } from '../../common/config/config';
+import { Logger } from '../../shared/common/logger';
+import { Config } from '../../shared/common/config/config';
 
 const logger = Logger.instance.getLogger();
 const cfg = Config.instance.config;

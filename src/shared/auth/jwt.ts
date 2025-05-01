@@ -1,8 +1,8 @@
-import { User } from '../persistent/database/interface/User';
+import { User } from '../../persistence/database/interface/User';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { CookieOptions, Response, Request } from 'express';
-import { PopulatedSite } from '../persistent/database/interface/Site';
-import { WithId } from '../persistent/objectMapper';
+import { PopulatedSite } from '../../persistence/database/interface/Site';
+import { WithId } from '../../persistence/objectMapper';
 import { Config } from '../common/config/config';
 
 const generateJWT = async (user: WithId<User>) => {

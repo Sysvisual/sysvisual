@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { Logger } from '../shared/common/logger';
 import { checkTokenMiddleware } from '../middleware/checkToken';
-import { mapSiteToDTO, WithId } from '../shared/persistent/objectMapper';
-import { PopulatedSite } from '../shared/persistent/database/interface/Site';
+import { mapSiteToDTO, WithId } from '../persistence/objectMapper';
+import { PopulatedSite } from '../persistence/database/interface/Site';
 import { getJWTPayload } from '../shared/common/helpers/requestUtils';
-import { getSites } from '../shared/persistent/database/repository/SiteRepository';
+import { getSites } from '../persistence/database/repository/SiteRepository';
 
 const router = Router();
 const logger = Logger.instance.getLogger();

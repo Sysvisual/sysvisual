@@ -3,7 +3,7 @@ import { checkTokenMiddleware } from '../middleware/checkToken';
 import fs from 'fs';
 import fileUpload from '../middleware/fileUpload';
 import { getSite } from '../shared/common/helpers/requestUtils';
-import { deleteImages } from '../shared/persistent/database/repository/ProductRepository';
+import { deleteImages } from '../persistence/database/repository/ProductRepository';
 import { Config } from '../shared/common/config/config';
 
 const router = Router();

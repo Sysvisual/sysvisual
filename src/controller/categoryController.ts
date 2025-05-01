@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { mapCategoryToDTO, WithId } from '../shared/persistent/objectMapper';
+import { mapCategoryToDTO, WithId } from '../persistence/objectMapper';
 import { checkTokenMiddleware } from '../middleware/checkToken';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import {
 	Category,
 	PopulatedCategory,
-} from '../shared/persistent/database/interface/Category';
-import { Product } from '../shared/persistent/database/interface/Product';
+} from '../persistence/database/interface/Category';
+import { Product } from '../persistence/database/interface/Product';
 import { checkAuth } from '../shared/auth/jwt';
 import {
 	createCategory,
@@ -14,8 +14,8 @@ import {
 	getCategories,
 	getCategory,
 	updateCategory,
-} from '../shared/persistent/database/repository/CategoryRepository';
-import { updateCategories } from '../shared/persistent/database/repository/ProductRepository';
+} from '../persistence/database/repository/CategoryRepository';
+import { updateCategories } from '../persistence/database/repository/ProductRepository';
 import { getSite } from '../shared/common/helpers/requestUtils';
 
 const router = Router();

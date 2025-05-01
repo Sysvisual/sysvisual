@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { SiteModel } from '../shared/persistent/database/models';
+import { SiteModel } from '../persistence/database/models';
 import { Logger } from '../shared/common/logger';
 
 const logger = Logger.instance.getLogger();

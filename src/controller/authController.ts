@@ -1,9 +1,9 @@
 import { clearAuthCookie, setAuthCookie, verifyJWT } from '../shared/auth/jwt';
-import { User } from '../shared/persistent/database/interface/User';
+import { User } from '../persistence/database/interface/User';
 import bcrypt from 'bcrypt';
 import { Router } from 'express';
-import { WithId } from '../shared/persistent/objectMapper';
-import { getUserByName } from '../shared/persistent/database/repository/UserRepository';
+import { WithId } from '../persistence/objectMapper';
+import { getUserByName } from '../persistence/database/repository/UserRepository';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import { getSite } from '../shared/common/helpers/requestUtils';
 

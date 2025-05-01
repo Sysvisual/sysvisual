@@ -3,16 +3,16 @@ import cookieParser from 'cookie-parser';
 import mongoose, { Types } from 'mongoose';
 
 import defaultController from './controller/defaultController';
-import { UserModel } from './shared/persistent/database/models';
+import { UserModel } from './persistence/database/models';
 import { logRequest } from './middleware/logRequest';
 import { cors } from './middleware/cors';
 import { Logger } from './shared/common/logger';
-import ContactDetailsModel from './shared/persistent/database/models/contactDetailsModel';
-import SiteModel from './shared/persistent/database/models/siteModel';
+import ContactDetailsModel from './persistence/database/models/contactDetailsModel';
+import SiteModel from './persistence/database/models/siteModel';
 
 import promBundle from 'express-prom-bundle';
 import { Config } from './shared/common/config/config';
-import { Postgres } from './shared/persistent/database/postgres';
+import { Postgres } from './persistence/database/postgres';
 
 const logger = Logger.instance.getLogger();
 

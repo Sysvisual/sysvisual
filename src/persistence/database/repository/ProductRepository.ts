@@ -3,13 +3,13 @@ import {
 	ErrorResult,
 	resultFromError,
 	Result,
-} from '../../../common/helpers/result';
+} from '../../../shared/common/helpers/result';
 import { PopulatedProduct, Product } from '../interface/Product';
 import { Query } from 'mongoose';
 import fs from 'fs';
 import { WithId } from '../../objectMapper';
 import { deleteImages as deleteImagesFS } from '../../fileHandler';
-import { Config } from '../../../common/config/config';
+import { Config } from '../../../shared/common/config/config';
 
 const getProduct = async (
 	siteId: string,

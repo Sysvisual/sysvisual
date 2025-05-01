@@ -1,5 +1,8 @@
 import { Address } from '../interface/Address';
-import { ErrorResult, resultFromError } from '../../../common/helpers/result';
+import {
+	ErrorResult,
+	resultFromError,
+} from '../../../shared/common/helpers/result';
 import { AddressModel } from '../models';
 
 const createAddress = async (
