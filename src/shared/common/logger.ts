@@ -12,7 +12,7 @@ class Logger {
 			transports: [
 				new winston.transports.Console(),
 				new LokiTransport({
-					host: Config.instance.config.loki.host,
+					host: `${Config.instance.config.loki.host}:${Config.instance.config.loki.port}`,
 					json: true,
 					labels: { service: 'sysvisual-backend' },
 					batching: false,
