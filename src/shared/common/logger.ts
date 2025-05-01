@@ -15,7 +15,12 @@ class Logger {
 					host: Config.instance.config.loki.host,
 					json: true,
 					labels: { service: 'sysvisual-backend' },
-					interval: 100,
+					batching: false,
+					timeout: 5000,
+					onConnectionError(error: unknown) {
+						console.error('Could not connect to loki!', error);
+						process.exit(1);
+					},
 				}),
 			],
 			format: winston.format.combine(
