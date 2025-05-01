@@ -5,7 +5,6 @@ services:
     command:
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
-      - "--logLevel=DEBUG"
       - "--entryPoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=imveenix@gmail.com"
