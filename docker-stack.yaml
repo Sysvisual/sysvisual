@@ -1,10 +1,11 @@
 services:
   reverse-proxy:
     image: traefik:v3.1
-    restart: always
+    restart: unless-stopped
     command:
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
+      - "--logLevel=DEBUG"
       - "--entryPoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=imveenix@gmail.com"
@@ -25,13 +26,13 @@ services:
 
   sysvisual:
     image: ghcr.io/sysvisual/sysvisual:${GIT_COMMIT_HASH:-latest}
-    restart: always
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sysvisual.rule=Host(`api.sysvisual.de`)"
       - "traefik.http.routers.sysvisual.entrypoints=websecure"
       - "traefik.http.routers.sysvisual.tls.certresolver=myresolver"
-      - "traefik.http.services.sysvisual.loadbalancer.server.port=8080"
+      - "traefik.http.services.sysvisual.loadbalancer.server.port=80"
     volumes:
       - fileupload:/upload
     secrets:
@@ -49,7 +50,7 @@ services:
 
   lasermatti:
     image: veenixdev/lasermatti
-    restart: always
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.lasermatti.rule=Host(`veenix.de`)"
@@ -58,7 +59,7 @@ services:
 
   admin-board:
     image: veenixdev/admin-board
-    restart: always
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.admin-board.rule=Host(`sysvisual.de`)"
@@ -67,7 +68,7 @@ services:
 
   postgres:
     image: postgres
-    restart: always
+    restart: unless-stopped
     user: postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -85,7 +86,7 @@ services:
 
   mongodb:
     image: mongo
-    restart: always
+    restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongodb-password
@@ -113,7 +114,7 @@ services:
 
   prometheus:
     image: prom/prometheus
-    restart: always
+    restart: unless-stopped
     volumes:
       - prometheus-data:/etc/prometheus
 
