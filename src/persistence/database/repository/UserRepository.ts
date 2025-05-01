@@ -46,7 +46,7 @@ const getUserByName = async (
 	}
 };
 
-/*const getUser = async (
+const getUser = async (
 	siteId: string,
 	userId: string
 ): Promise<ErrorResult<PopulatedUser | undefined>> => {
@@ -68,7 +68,7 @@ const getUserByName = async (
 	} catch (error) {
 		return resultFromError(error);
 	}
-};*/
+};
 
 const createUser = async (
 	user: Omit<User, 'createdAt'>
@@ -88,9 +88,9 @@ const createUser = async (
 	}
 };
 
-const getUser = async (filter: Partial<User>) => {
+/*const getUser = async (filter: Partial<User>) => {
 	throw new Error('Not implemented');
-};
+};*/
 
 const populateUser = (
 	query: Query<unknown, unknown>
