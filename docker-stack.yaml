@@ -118,8 +118,10 @@ services:
     image: prom/prometheus
     restart: unless-stopped
     volumes:
-      - ./infra/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
       - prometheus-data:/etc/prometheus
+    configs:
+      - source: prometheus-config
+        target: /etc/prometheus/prometheus.yaml
 
 volumes:
   mongodb-data:
@@ -129,6 +131,10 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
+
+configs:
+  prometheus-config:
+    file: ./infra/prometheus/prometheus.yml
 
 secrets:
   postgres-password:
