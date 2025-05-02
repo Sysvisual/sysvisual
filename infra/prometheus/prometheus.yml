@@ -18,7 +18,7 @@ scrape_configs:
     metrics_path: /metrics
     scheme: http
     static_configs:
-      - targets: ["172.17.0.6:8080"]
+      - targets: ["sysvisual"]
         labels:
-          service: 'sysvisual-backend'
+          service: 'sysvisual'
           project: 'sysvisual'

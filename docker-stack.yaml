@@ -75,11 +75,12 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
       POSTGRES_DB: sysvisual
       POSTGRES_USER: sysvisual
+      TZ: Europe/Berlin
     secrets:
       - postgres-password
     healthcheck:
       test: [ "CMD", "pg_isready" ]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
 
@@ -90,6 +91,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongodb-password
       MONGO_INITDB_DATABASE: sysvisual
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
     secrets:
       - mongodb-password
 

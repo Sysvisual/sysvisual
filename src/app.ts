@@ -56,7 +56,7 @@ export default async function (): Promise<express.Express> {
 			includeUp: true,
 			customLabels: {
 				project_name: 'sysvisual',
-				service: 'sysvisual-backend',
+				service: 'sysvisual',
 			},
 			promClient: {
 				collectDefaultMetrics: {},

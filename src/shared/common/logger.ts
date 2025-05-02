@@ -14,7 +14,7 @@ class Logger {
 				new LokiTransport({
 					host: `${Config.instance.config.loki.host}:${Config.instance.config.loki.port}`,
 					json: true,
-					labels: { service: 'sysvisual-backend' },
+					labels: { service: 'sysvisual', project: 'sysvisual' },
 					batching: false,
 					timeout: 5000,
 					onConnectionError(error: unknown) {
@@ -28,7 +28,8 @@ class Logger {
 				winston.format.json()
 			),
 			defaultMeta: {
-				service: 'sysvisual-backend',
+				service: 'sysvisual',
+				project: 'sysvisual',
 			},
 		});
 	}
