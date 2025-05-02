@@ -44,8 +44,12 @@ services:
     env_file:
       - .env.prod
     depends_on:
-      - postgres
-      - mongodb
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
 
   lasermatti:
     image: veenixdev/lasermatti
@@ -102,7 +106,7 @@ services:
     volumes:
       - loki-data:/var/log
     healthcheck:
-      test: ["CMD", "wget http://localhost:3100/ready"]
+      test: ["CMD", "wget", "-O-", "http://localhost:3100/ready"]
       interval: 10s
       timeout: 15s
       retries: 10
@@ -120,7 +124,7 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     healthcheck:
-      test: ["CMD", "wget", "http://localhost:3000/api/health"]
+      test: ["CMD", "wget", "-O-", "http://localhost:3000/api/health"]
       interval: 10s
       timeout: 15s
       retries: 10
