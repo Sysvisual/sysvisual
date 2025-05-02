@@ -118,6 +118,7 @@ services:
     image: prom/prometheus
     restart: unless-stopped
     volumes:
+      - ./infra/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
       - prometheus-data:/etc/prometheus
 
 volumes:
