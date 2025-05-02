@@ -121,7 +121,7 @@ services:
       - prometheus-data:/etc/prometheus
     configs:
       - source: prometheus-config
-        target: /etc/prometheus/prometheus.yaml
+        target: /etc/prometheus/prometheus.yml
 
 volumes:
   mongodb-data:
