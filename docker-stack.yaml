@@ -101,6 +101,12 @@ services:
     restart: always
     volumes:
       - loki-data:/var/log
+    healthcheck:
+      test: ["CMD", "wget http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 15s
+      retries: 10
+      start_period: 10s
 
   grafana:
     image: grafana/grafana
@@ -113,12 +119,24 @@ services:
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     volumes:
       - grafana-data:/var/lib/grafana
+    healthcheck:
+      test: ["CMD", "wget", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 15s
+      retries: 10
+      start_period: 10s
 
   prometheus:
     image: prom/prometheus
     restart: unless-stopped
     volumes:
       - prometheus-data:/etc/prometheus
+    healthcheck:
+      test: ["CMD", "wget", "http://localhost:9090/"]
+      interval: 10s
+      timeout: 15s
+      retries: 10
+      start_period: 20s
     configs:
       - source: prometheus-config
         target: /etc/prometheus/prometheus.yml
