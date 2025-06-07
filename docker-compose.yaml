@@ -8,6 +8,20 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: sysvisual
 
+  postgres:
+    image: postgres
+    user: postgres
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: sysvisual
+      POSTGRES_USER: sysvisual
+      TZ: Europe/Berlin
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       dockerfile: ./Dockerfile
@@ -15,13 +29,13 @@ services:
       - .env
     ports:
       - "127.0.0.1:8080:8080"
-  
+
   frontend:
     build:
-      context: ../web_new
-      dockerfile: ../web_new/Dockerfile
+      context: ../lasermatti.de
+      dockerfile: ../lasermatti.de/Dockerfile
     ports:
-      - "127.0.0.1:3000:5173"
+      - "3000:5173"
     volumes:
       - type: volume
         source: product-images
@@ -29,10 +43,21 @@ services:
 
   frontent-admin:
     build:
-      context: ../web_admin
-      dockerfile: ../web_admin/Dockerfile
+      context: ../admin-board
+      dockerfile: ../admin-board/Dockerfile
     ports:
-      - "127.0.0.1:3001:5173"
+      - "3001:80"
+  loki:
+    image: grafana/loki
+    ports:
+      - "3100:3100"
+    healthcheck:
+      test: [ "CMD", "wget", "-O-", "http://localhost:3100/ready" ]
+      interval: 10s
+      timeout: 15s
+      retries: 10
+      start_period: 10s
+
 
 volumes:
   product-images:

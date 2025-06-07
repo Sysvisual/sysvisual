@@ -48,6 +48,28 @@ services:
       - mongodb
       - loki
 
+  fotobuch:
+    image: ghcr.io/veenixdev/fotobuch:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fotobuch.rule=Host(`hochzeit-putzke.de`)"
+      - "traefik.http.routers.fotobuch.entrypoints=websecure"
+      - "traefik.http.routers.fotobuch.tls.certresolver=myresolver"
+    volumes:
+      - fotobuchupload:/upload
+    environment:
+      LOKI_HOST: http://loki
+      LOKI_PORT: 3100
+      PORT: 80
+      HOST: hochzeit-putzke.de
+      FILE_UPLOAD_DEST: /upload
+      ENVIRONMENT: PROD
+      FRONTEND_PATH: /frontend
+    depends_on:
+      - loki
+      - prometheus
+
   lasermatti:
     image: veenixdev/lasermatti
     restart: unless-stopped
@@ -147,6 +169,7 @@ volumes:
   postgres-data:
   letsencrypt:
   fileupload:
+  fotobuchupload:
   prometheus-data:
   grafana-data:
   loki-data:

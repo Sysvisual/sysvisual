@@ -1,5 +1,5 @@
 import knex from 'knex';
-import { Logger } from '../../shared/common/logger';
+import { Logger } from '../../shared/common/logging/logger';
 import { Config } from '../../shared/common/config/config';
 
 const logger = Logger.instance.getLogger();

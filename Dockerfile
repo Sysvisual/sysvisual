@@ -14,5 +14,5 @@ COPY --from=builder /app/node_modules /app/node_modules
 VOLUME ["/upload"]
 
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 80
 CMD ["node", "server.js"]

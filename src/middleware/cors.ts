@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { Config } from '../shared/common/config/config';
+import { Logger } from '../shared/common/logging/logger';
+
+const logger = Logger.instance.getLogger();
 
 const cors = (req: Request, res: Response, next: NextFunction) => {
 	// TODO: Move allowed Hosts into database
@@ -18,6 +21,9 @@ const cors = (req: Request, res: Response, next: NextFunction) => {
 		req.headers['X-Domain'] = getDomain(remoteHost);
 		req.headers['X-Host'] = remoteHost;
 	} else {
+		logger.warn(`Got request from unknown remoteHost ${remoteHost}`, {
+			remoteHost,
+		});
 		return res.end();
 	}
 

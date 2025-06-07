@@ -6,7 +6,7 @@ import defaultController from './controller/defaultController';
 import { UserModel } from './persistence/database/models';
 import { logRequest } from './middleware/logRequest';
 import { cors } from './middleware/cors';
-import { Logger } from './shared/common/logger';
+import { Logger } from './shared/common/logging/logger';
 import ContactDetailsModel from './persistence/database/models/contactDetailsModel';
 import SiteModel from './persistence/database/models/siteModel';
 
@@ -38,8 +38,6 @@ export default async function (): Promise<express.Express> {
 		await createDefaultUsers();
 
 		Postgres.init();
-
-		logger.info('Successfully connected to the database.');
 	} catch (error) {
 		logger.error(
 			'Not successfully connected to the database. Stopping server!',
@@ -63,10 +61,10 @@ export default async function (): Promise<express.Express> {
 			},
 		})
 	);
+	app.use(cors);
 	app.use(logRequest);
 	app.use(express.json());
 	app.use(cookieParser());
-	app.use(cors);
 	app.use('/', defaultController);
 
 	return app;

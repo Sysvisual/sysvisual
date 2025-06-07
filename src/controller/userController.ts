@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Logger } from '../shared/common/logger';
+import { Logger } from '../shared/common/logging/logger';
 import { checkTokenMiddleware } from '../middleware/checkToken';
 import { Address } from '../persistence/database/interface/Address';
 import { mapUserToDTO, WithId } from '../persistence/objectMapper';

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { SiteModel } from '../persistence/database/models';
-import { Logger } from '../shared/common/logger';
+import { Logger } from '../shared/common/logging/logger';
 
 const logger = Logger.instance.getLogger();
 

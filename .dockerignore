@@ -10,3 +10,7 @@ docker-stack.yaml
 *.md
 .gitignore
 .nvmrc
+**/*.spec.ts
+jest.config.js
+eslint.config.mjs
+nodemon.json

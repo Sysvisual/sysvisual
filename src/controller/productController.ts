@@ -3,7 +3,7 @@ import { checkTokenMiddleware } from '../middleware/checkToken';
 import { mapProductToDTO, WithId } from '../persistence/objectMapper';
 import { checkNoEmptyBody } from '../middleware/checkNoEmptyBody';
 import { checkAuth } from '../shared/auth/jwt';
-import { Logger } from '../shared/common/logger';
+import { Logger } from '../shared/common/logging/logger';
 import { PopulatedProduct } from '../persistence/database/interface/Product';
 import {
 	createProduct,

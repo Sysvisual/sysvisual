@@ -1,6 +1,8 @@
+import './instrumentation';
+
 import winston from 'winston';
 import LokiTransport from 'winston-loki';
-import { Config } from './config/config';
+import { Config } from '../config/config';
 
 class Logger {
 	private static _instance: Logger | null = null;
