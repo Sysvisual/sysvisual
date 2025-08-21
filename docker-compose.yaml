@@ -11,11 +11,15 @@ services:
   postgres:
     image: postgres
     user: postgres
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: example
       POSTGRES_DB: sysvisual
-      POSTGRES_USER: sysvisual
+      POSTGRES_USER: root
       TZ: Europe/Berlin
+    volumes:
+      - "./infra/postgresql:/docker-entrypoint-initdb.d"
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 5s
@@ -35,7 +39,7 @@ services:
       context: ../lasermatti.de
       dockerfile: ../lasermatti.de/Dockerfile
     ports:
-      - "3000:5173"
+      - "3000:80"
     volumes:
       - type: volume
         source: product-images

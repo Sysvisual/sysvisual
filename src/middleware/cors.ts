@@ -5,13 +5,20 @@ import { Logger } from '../shared/common/logging/logger';
 const logger = Logger.instance.getLogger();
 
 const cors = (req: Request, res: Response, next: NextFunction) => {
-	// TODO: Move allowed Hosts into database
 	const whitelistedOrigins = Config.instance.config.allowedHosts;
 
 	const remoteHost = (req.headers.origin ?? req.headers.referer)?.replace(
 		/\/$/,
 		''
 	);
+
+	if (Config.instance.config.environment === 'LOCAL') {
+		if (req.headers['host']?.startsWith('localhost')) {
+			return next();
+		} else {
+			return res.end();
+		}
+	}
 
 	if (
 		remoteHost !== undefined &&

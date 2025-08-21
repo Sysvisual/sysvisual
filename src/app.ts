@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import mongoose, { Types } from 'mongoose';
 
@@ -61,11 +62,13 @@ export default async function (): Promise<express.Express> {
 			},
 		})
 	);
+	app.use(compression());
 	app.use(cors);
 	app.use(logRequest);
 	app.use(express.json());
 	app.use(cookieParser());
 	app.use('/', defaultController);
+	app.use('/assets', express.static('assets'));
 
 	return app;
 }
