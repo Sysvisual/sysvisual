@@ -1,1 +1,86 @@
-export default((e,t)=>new Promise((r,o)=>{if(void 0!==t.detectAlreadyImportedKey&&window[t.detectAlreadyImportedKey]){console.warn(`${e} was already imported. Skipping import`),r({alreadyImported:!0,exports:{}});return}let a=document.createElement("script");a.src=`/assets/${e}.js`,a.async=!0,a.onload=()=>{console.log(`${e} was loaded successfully via legacy wrapper.`);let a={};if(void 0!==t.exportFilters){let l=t.exportFilters;switch(typeof l){case"string":if(void 0===window[l]){o(Error("No object to export that satisfies the exact match filter."));return}a[l]=window[l];break;case"object":if(l instanceof RegExp)for(let s in window)l.test(s)&&(a[s]=window[s]);else if(Array.isArray(l))for(let d in window)l.includes(d)&&(a[d]=window[d]);else{o(Error(`type of filter is not supported: ${typeof l}`));return}break;default:o(Error(`type of filter is not supported: ${typeof l}`));return}}else{r({alreadyImported:!1,exports:window});return}Object.keys(a).length<=0&&o(Error(`${e} was loaded but no exports were not found.`)),r({alreadyImported:!1,exports:a})},a.onerror=t=>{console.error(`Failed to load ${e} via legacy wrapper:`,t),o(Error(`Failed to load ${e} via legacy wrapper.`))},document.body.appendChild(a)}));
+/**
+ * Loads a script that uses and IIFE (Immediately Invoked Function Expression) for initialization returns an object with all exports provided by the script.
+ *
+ * @param scriptUrl The path from where the script should be downloaded
+ * @param options Is an object with multiple optional fields:
+ * detectAlreadyImportedKey: Is used to avoid importing the same script multiple times.
+ * filter: Can be either a string (exact match), RegExp or a list of exact matches to filter what gets exported
+ * @returns {Promise<unknown>}
+ */
+export default (scriptUrl, options) => {
+	return new Promise((resolve, reject) => {
+		if (options.detectAlreadyImportedKey !== undefined) {
+			if (window[options.detectAlreadyImportedKey]) {
+				console.warn(`${scriptUrl} was already imported. Skipping import`);
+				resolve({ alreadyImported: true, exports: {} });
+				return;
+			}
+		}
+
+		const scriptElement = document.createElement('script');
+		scriptElement.src = `/assets/${scriptUrl}.js`;
+		scriptElement.async = true;
+
+		scriptElement.onload = () => {
+			console.log(`${scriptUrl} was loaded successfully via legacy wrapper.`);
+			const exportObject = {};
+
+			// TODO: Enhance export detection with a more robust solution
+			if (options.exportFilters !== undefined) {
+				const filter = options.exportFilters;
+				switch (typeof filter) {
+					case 'string':
+						if (window[filter] === undefined) {
+							const regexp = new RegExp(filter);
+							console.debug('Searching exports with regexp', regexp);
+							for (const key in window) {
+								if (regexp.test(key)) {
+									exportObject[key] = window[key];
+								}
+							}
+						} else {
+							exportObject[filter] = window[filter];
+						}
+						break;
+					case 'object':
+						if (Array.isArray(filter)) {
+							for (const key in window) {
+								if (filter.includes(key)) {
+									exportObject[key] = window[key];
+								}
+							}
+						} else {
+							reject(
+								new Error(`type of filter is not supported: ${typeof filter}`)
+							);
+							return;
+						}
+						break;
+					default:
+						reject(
+							new Error(`type of filter is not supported: ${typeof filter}`)
+						);
+						return;
+				}
+			} else {
+				resolve({ alreadyImported: false, exports: window });
+				return;
+			}
+
+			if (Object.keys(exportObject).length <= 0) {
+				reject(
+					new Error(`${scriptUrl} was loaded but no exports were not found.`)
+				);
+			}
+
+			resolve({ alreadyImported: false, exports: exportObject });
+		};
+
+		scriptElement.onerror = (e) => {
+			console.error(`Failed to load ${scriptUrl} via legacy wrapper:`, e);
+			reject(new Error(`Failed to load ${scriptUrl} via legacy wrapper.`));
+		};
+
+		document.body.appendChild(scriptElement);
+	});
+};

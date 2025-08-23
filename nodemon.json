@@ -1,5 +1,5 @@
 {
   "watch": ["src", ".env"],
   "ext": "ts,json",
-  "exec": "node -r ts-node/register --env-file=.env ./src/server.ts --files"
+  "exec": "NODE_NO_WARNINGS=1 node -r ts-node/register --env-file=.env ./src/server.ts --files"
 }

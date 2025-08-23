@@ -1,28 +1,18 @@
-import {
-	ErrorResult,
-	Result,
-	resultFromError,
-} from '../../shared/common/helpers/result';
+import { ErrorResult, Result } from '../../shared/common/helpers/result';
 import fs from 'fs';
-
-type ComponentSlot<T> = {
-	allowedTypes: string[];
-	value: T;
-};
-
-type Component = {
-	type: string;
-	version: string;
-	dependencies?: (Component | string)[];
-	slots?: ComponentSlot<unknown>[];
-	attributes?: { [attr: string]: string };
-	hooks?: { [hook: string]: (event: unknown) => void };
-	events?: { [event: string]: (event: unknown) => unknown };
-	renderToHtml: (self: Component) => string;
-};
+import {
+	Component,
+	ComponentBase,
+	ComponentConstructorObject,
+} from './components/Component';
+import {
+	ContainerComponent,
+	LiteGraphComponent,
+	TextComponent,
+} from './components/core/basic';
 
 class TemplateParser {
-	private data: string;
+	private readonly data: string;
 	private index = 0;
 	private readonly length: number;
 
@@ -46,10 +36,12 @@ class TemplateParser {
 		);
 	}
 
-	public fillData(properties: { [key: string]: string }): string {
+	public fillData(
+		components: { [key: string]: Component[] },
+		properties: { [key: string]: string }
+	): string {
 		let result = '';
 		let batchStartIndex = this.index;
-
 		while (this.index++ < this.length) {
 			if (this.peek(1) === '\\') {
 				if (['$', '\\'].includes(this.peek(1, 1) ?? '')) {
@@ -63,12 +55,34 @@ class TemplateParser {
 				result += this.data.substring(batchStartIndex, this.index);
 				this.index += 3;
 				const startIndex = this.index;
-				while (this.peek(2) !== '}}') {
-					this.index++;
+				const endIndex = this.data.indexOf('}}', this.index);
+				if (endIndex === -1) {
+					throw new Error(
+						'Could not parse site template, missing closing "}}" for property'
+					);
 				}
-				const propertyKey = this.data.substring(startIndex, this.index).trim();
+
+				const propertyKey = this.data.substring(startIndex, endIndex).trim();
 				result += properties[propertyKey];
-				this.index += 2;
+				this.index = endIndex + 2;
+				batchStartIndex = this.index;
+			}
+			if (this.peek(3) === '$[[') {
+				result += this.data.substring(batchStartIndex, this.index);
+				this.index += 3;
+				const startIndex = this.index;
+				const endIndex = this.data.indexOf(']]', this.index);
+				if (endIndex === -1) {
+					throw new Error(
+						'Could not parse site template, missing closing "]]" for slot'
+					);
+				}
+				const slotKey = this.data.substring(startIndex, endIndex).trim();
+				if (components[slotKey] !== undefined) {
+					result += components[slotKey].map((c) => c.renderToHtml()).join('');
+				}
+				//result += components[slotKey]?.renderToHtml();
+				this.index = endIndex + 2;
 				batchStartIndex = this.index;
 			}
 		}
@@ -83,6 +97,7 @@ class TemplateParser {
 let siteTemplate = fs
 	.readFileSync('templates/site_template.html')
 	.toString('utf8');
+let loaderScript = fs.readFileSync('assets/loader.js').toString('utf8');
 
 (async () => {
 	fs.watchFile('templates/site_template.html', async (_) => {
@@ -91,17 +106,66 @@ let siteTemplate = fs
 			.toString('utf8');
 		console.log('Reloaded site template!');
 	});
+	fs.watchFile('assets/loader.js', async (_) => {
+		loaderScript = fs.readFileSync('assets/loader.js').toString('utf8');
+		console.log('Reloaded loader script!');
+	});
 })();
 
+export type SiteDefinition = {
+	metadata: {
+		[key: string]: string;
+	};
+	components: { [key: string]: Component[] };
+};
+
+const componentRepository: { [key: string]: typeof ComponentBase } = {
+	'core/basic/text': TextComponent,
+	'core/basic/container': ContainerComponent,
+	'core/basic/litegraph': LiteGraphComponent,
+};
+
+function convertObjectToComponent(component: {
+	[key: string]: unknown;
+}): Component {
+	const componentClass = componentRepository[component.type as string];
+
+	if (!componentClass) {
+		throw new Error(`Unknown component type: "${component.type}"`);
+	}
+
+	if (component.slots) {
+		component.slots = (component.slots as { [key: string]: unknown }[]).map(
+			(s) => convertObjectToComponent(s)
+		);
+	}
+	// @ts-expect-error Here we create an instance of a Component and not the ComponentBase
+	return new componentClass(component as unknown as ComponentConstructorObject);
+}
+
+export function renderFromObject(definition: SiteDefinition) {
+	const properties: { [key: string]: string } = {};
+	Object.keys(definition.metadata).map(
+		(k) => (properties[`metadata_${k}`] = definition.metadata[k])
+	);
+	const components: { [key: string]: Component[] } = {};
+	Object.keys(definition.components).map(
+		(c) =>
+			(components[c] = definition.components[c].map((k) =>
+				convertObjectToComponent(k as unknown as { [key: string]: string })
+			))
+	);
+
+	return renderSite(components, properties);
+}
+
 export function renderSite(
-	components: Component[],
+	components: { [key: string]: Component[] },
 	properties: { [key: string]: string }
 ): ErrorResult<string> {
-	if (components.length === 0) {
-		const parser = new TemplateParser(siteTemplate);
-		const result = parser.fillData(properties);
+	properties['buitlin_loaderscript'] = loaderScript;
+	const parser = new TemplateParser(siteTemplate);
+	const result = parser.fillData(components, properties);
 
-		return new Result(result, null);
-	}
-	return resultFromError(new Error('Could not render site'));
+	return new Result(result, null);
 }

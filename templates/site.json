@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "lang": "en",
+    "title": "Test Site",
+    "description": "My simple test-site"
+  },
+  "components": {
+    "main": [
+      {
+        "type": "core/basic/container",
+        "styles": {
+          "background-color": "#0F0F0F"
+        },
+        "slots": [
+          {
+            "type": "core/basic/text",
+            "attributes": {
+              "text": "Hallo Welt!"
+            },
+            "styles": {
+              "color": "rgb(0, 0, 255)",
+              "font-size": "48px"
+            }
+          },
+          {
+            "type": "core/basic/litegraph"
+          }
+        ]
+      },
+      {
+        "type": "core/basic/text",
+        "attributes": {
+          "text": "I am outside of the container"
+        },
+        "styles": {
+          "color": "brown",
+          "font-size": "140px",
+          "background-color": "blue"
+        }
+      }
+    ]
+  }
+}

@@ -1,5 +1,4 @@
 import express from 'express';
-import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import mongoose, { Types } from 'mongoose';
 
@@ -14,6 +13,7 @@ import SiteModel from './persistence/database/models/siteModel';
 import promBundle from 'express-prom-bundle';
 import { Config } from './shared/common/config/config';
 import { Postgres } from './persistence/database/postgres';
+import compression from 'compression';
 
 const logger = Logger.instance.getLogger();
 

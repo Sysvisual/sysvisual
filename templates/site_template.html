@@ -1,36 +1,20 @@
 <!DOCTYPE html>
-<html lang="${{ language }}">
+<html lang="${{ metadata_lang }}">
 <head>
 	<meta charset="UTF-8">
-	<title>${{ site title }}</title>
-	<script src="/assets/loader.js"></script>
+	<title>${{ metadata_title }}</title>
+	<meta name="description" content="${{ metadata_description }}">
+
+	<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+	<link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
+
+	<script>${{ buitlin_loaderscript }}</script>
 </head>
 <body>
-	<h1>${{ site title }}</h1>
+	<h1>${{ metadata_title }}</h1>
 	<main>
-		<div class="canvas wrapper">
-			<canvas id="editorCanvas" width="1200" height="720"></canvas>
-		</div>
+		$[[main]]
 	</main>
-	<script>
-		document.addEventListener("DOMContentLoaded", async function() {
-			await loadLiteGraph();
-
-			const graph = new litegraph.LGraph();
-			const canvas = new litegraph.LGraphCanvas('#editorCanvas', graph);
-			const node_const = litegraph.LiteGraph.createNode('basic/const');
-
-			node_const.pos = [200,200];
-			graph.add(node_const);
-			node_const.setValue(4.5);
-
-			const node_watch = litegraph.LiteGraph.createNode("basic/watch");
-			node_watch.pos = [700,200];
-			graph.add(node_watch);
-
-			node_const.connect(0, node_watch, 0 );
-			graph.start();
-		});
-	</script>
 </body>
 </html>

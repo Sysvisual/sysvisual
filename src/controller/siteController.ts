@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { Logger } from '../shared/common/logging/logger';
-import { checkTokenMiddleware } from '../middleware/checkToken';
 import { mapSiteToDTO, WithId } from '../persistence/objectMapper';
 import { PopulatedSite } from '../persistence/database/interface/Site';
 import { getJWTPayload } from '../shared/common/helpers/requestUtils';
 import { getSites } from '../persistence/database/repository/SiteRepository';
-import { renderSite } from '../domain/siteRenderer/SiteRenderService';
+import {
+	renderFromObject,
+	SiteDefinition,
+} from '../domain/siteRenderer/SiteRenderService';
 import fs from 'fs';
 
 const router = Router();
@@ -40,18 +42,28 @@ router.get(
 	}
 );
 
+let siteDefinitionStr = fs.readFileSync('templates/site.json').toString('utf8');
+(async () => {
+	fs.watchFile('templates/site.json', async (_) => {
+		siteDefinitionStr = fs.readFileSync('templates/site.json').toString('utf8');
+		console.log('Reloaded site definition');
+	});
+})();
+
 router.get('/:siteName', async (req, res) => {
-	const properties = {
-		'language': 'en',
-		'site title': 'Test Site',
-	};
+	try {
+		const renderedSite = renderFromObject(
+			JSON.parse(siteDefinitionStr) as unknown as SiteDefinition
+		);
 
-	const renderedSite = renderSite([], properties);
-
-	if (renderedSite.isError) {
-		res.sendStatus(400);
-	} else {
-		res.status(200).send(renderedSite.value);
+		if (renderedSite.isError) {
+			res.sendStatus(400);
+		} else {
+			res.status(200).send(renderedSite.value);
+		}
+	} catch (error) {
+		logger.error('Unexpected error while rendering site', { error });
+		res.sendStatus(500);
 	}
 });
 
